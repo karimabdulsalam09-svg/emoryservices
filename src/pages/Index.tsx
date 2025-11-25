@@ -3,7 +3,11 @@ import FeatureCards from "@/components/FeatureCards";
 import About from "@/components/About";
 import WhatWeBuild from "@/components/WhatWeBuild";
 import HowItWorks from "@/components/HowItWorks";
+import VisualElements from "@/components/VisualElements";
+import EconomicMetrics from "@/components/EconomicMetrics";
 import SocialProof from "@/components/SocialProof";
+import LaunchTimeline from "@/components/LaunchTimeline";
+import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 
@@ -15,7 +19,11 @@ const Index = () => {
       <About />
       <WhatWeBuild />
       <HowItWorks />
+      <VisualElements />
+      <EconomicMetrics />
       <SocialProof />
+      <LaunchTimeline />
+      <FAQ />
       <FinalCTA />
       <Footer />
     </div>

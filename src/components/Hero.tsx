@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
+import CountdownBonus from "./CountdownBonus";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32">
       {/* Gradient overlays */}
       <div className="absolute inset-0 gradient-radial-red" />
       <div className="absolute inset-0 gradient-radial-blue opacity-50" />
@@ -52,6 +53,9 @@ const Hero = () => {
               See How It Works
             </Button>
           </div>
+          
+          {/* Countdown Bonus System */}
+          <CountdownBonus />
         </div>
       </div>
     </section>

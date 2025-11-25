@@ -1,24 +1,16 @@
-import { Quote, TrendingUp, DollarSign, Download } from "lucide-react";
-
-const testimonials = [
+const industryData = [
   {
-    quote: "Optima built everything — I only had to record 2 short videos.",
-    author: "Creator Name",
+    stat: "70% of creators say backend work is why they fail to launch",
+    source: "Thinkific 2024",
   },
   {
-    quote: "The fastest, cleanest system I've ever launched.",
-    author: "Creator Name",
+    stat: "Creators who outsource backend operations grow 2–5x faster",
+    source: "IMH 2024",
   },
   {
-    quote: "I added a new income stream without adding work.",
-    author: "Creator Name",
+    stat: "Digital product failures are usually caused by poor launch systems",
+    source: "HubSpot 2023",
   },
-];
-
-const metrics = [
-  { icon: Download, value: "+X", label: "Downloads" },
-  { icon: TrendingUp, value: "+X%", label: "Conversion Lift" },
-  { icon: DollarSign, value: "+$X", label: "Launch Revenue" },
 ];
 
 const SocialProof = () => {
@@ -27,38 +19,29 @@ const SocialProof = () => {
       <div className="absolute inset-0 gradient-radial-blue opacity-20" />
       
       <div className="container mx-auto px-6 relative z-10">
-        {/* Testimonials */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-20">
-          {testimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              className="elite-card rounded-xl p-8 space-y-4 animate-fade-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <Quote className="w-10 h-10 text-primary" />
-              <p className="text-lg text-foreground leading-relaxed">
-                "{testimonial.quote}"
-              </p>
-              <p className="text-muted-foreground">— {testimonial.author}</p>
-            </div>
-          ))}
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            Industry <span className="text-gradient-red-orange">Insights</span>
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Why backend work is the bottleneck — and why outsourcing it works
+          </p>
         </div>
-        
-        {/* Metrics */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {metrics.map((metric, index) => (
+
+        {/* Industry Data Cards */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {industryData.map((data, index) => (
             <div
               key={index}
-              className="elite-card rounded-xl p-8 text-center space-y-4 animate-scale-in"
-              style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+              className="elite-card rounded-xl p-8 animate-fade-up"
+              style={{ animationDelay: `${index * 0.15}s` }}
             >
-              <div className="w-14 h-14 rounded-full gradient-red-blue flex items-center justify-center mx-auto">
-                <metric.icon className="w-7 h-7 text-white" />
+              <p className="text-lg text-foreground mb-6 leading-relaxed font-semibold">
+                "{data.stat}"
+              </p>
+              <div className="border-t border-border pt-4">
+                <div className="text-sm text-primary font-bold">{data.source}</div>
               </div>
-              <div className="text-4xl font-bold text-gradient-orange-blue">
-                {metric.value}
-              </div>
-              <div className="text-muted-foreground">{metric.label}</div>
             </div>
           ))}
         </div>
