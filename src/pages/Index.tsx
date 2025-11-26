@@ -10,11 +10,14 @@ import LaunchTimeline from "@/components/LaunchTimeline";
 import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
+import BackgroundGlows from "@/components/BackgroundGlows";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Hero />
+    <div className="min-h-screen bg-background text-foreground relative">
+      <BackgroundGlows />
+      <div className="relative z-10">
+        <Hero />
       <FeatureCards />
       <About />
       <WhatWeBuild />
@@ -23,9 +26,10 @@ const Index = () => {
       <EconomicMetrics />
       <SocialProof />
       <LaunchTimeline />
-      <FAQ />
-      <FinalCTA />
-      <Footer />
+        <FAQ />
+        <FinalCTA />
+        <Footer />
+      </div>
     </div>
   );
 };
