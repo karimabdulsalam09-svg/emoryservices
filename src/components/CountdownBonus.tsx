@@ -54,7 +54,8 @@ const CountdownBonus = () => {
   const skipTime = (minutes: number) => {
     const storedTime = localStorage.getItem("optima-countdown-start");
     if (storedTime) {
-      const newStartTime = parseInt(storedTime) + (minutes * 60 * 1000);
+      // Subtract time to make countdown lose time (go down faster)
+      const newStartTime = parseInt(storedTime) - (minutes * 60 * 1000);
       localStorage.setItem("optima-countdown-start", newStartTime.toString());
       
       const elapsed = Math.floor((Date.now() - newStartTime) / 1000);
@@ -116,11 +117,10 @@ const CountdownBonus = () => {
         <div className="elite-card p-4 mb-6 bg-red-500/10 border border-red-500/30">
           <p className="text-xs text-red-400 mb-3 font-bold">ADMIN TIMER CONTROLS</p>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => skipTime(5)} size="sm" variant="outline">+5 min</Button>
-            <Button onClick={() => skipTime(10)} size="sm" variant="outline">+10 min</Button>
-            <Button onClick={() => skipTime(15)} size="sm" variant="outline">+15 min</Button>
-            <Button onClick={() => skipTime(20)} size="sm" variant="outline">+20 min</Button>
-            <Button onClick={() => skipTime(30)} size="sm" variant="outline">+30 min</Button>
+            <Button onClick={() => skipTime(1)} size="sm" variant="outline">-1 min</Button>
+            <Button onClick={() => skipTime(5)} size="sm" variant="outline">-5 min</Button>
+            <Button onClick={() => skipTime(10)} size="sm" variant="outline">-10 min</Button>
+            <Button onClick={() => skipTime(30)} size="sm" variant="outline">-30 min</Button>
             <Button onClick={() => resetTimer()} size="sm" variant="destructive">Reset</Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">Press Shift+A to hide this panel</p>
