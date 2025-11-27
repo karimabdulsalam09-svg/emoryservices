@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Trophy, Zap, FileText, Sparkles, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Bonus {
   icon: typeof Trophy;
@@ -10,6 +11,7 @@ interface Bonus {
 
 const CountdownBonus = () => {
   const [timeLeft, setTimeLeft] = useState(37 * 60); // 37 minutes in seconds
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   useEffect(() => {
     const storedTime = localStorage.getItem("optima-countdown-start");
@@ -36,6 +38,35 @@ const CountdownBonus = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Admin panel keyboard shortcut (Press Shift+A)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.shiftKey && e.key === 'A') {
+        setShowAdminPanel(prev => !prev);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
+  const skipTime = (minutes: number) => {
+    const storedTime = localStorage.getItem("optima-countdown-start");
+    if (storedTime) {
+      const newStartTime = parseInt(storedTime) + (minutes * 60 * 1000);
+      localStorage.setItem("optima-countdown-start", newStartTime.toString());
+      
+      const elapsed = Math.floor((Date.now() - newStartTime) / 1000);
+      const remaining = Math.max(0, 37 * 60 - elapsed);
+      setTimeLeft(remaining);
+    }
+  };
+
+  const resetTimer = () => {
+    localStorage.setItem("optima-countdown-start", Date.now().toString());
+    setTimeLeft(37 * 60);
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -80,6 +111,22 @@ const CountdownBonus = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-12 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+      {/* Admin Panel */}
+      {showAdminPanel && (
+        <div className="elite-card p-4 mb-6 bg-red-500/10 border border-red-500/30">
+          <p className="text-xs text-red-400 mb-3 font-bold">ADMIN TIMER CONTROLS</p>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => skipTime(5)} size="sm" variant="outline">+5 min</Button>
+            <Button onClick={() => skipTime(10)} size="sm" variant="outline">+10 min</Button>
+            <Button onClick={() => skipTime(15)} size="sm" variant="outline">+15 min</Button>
+            <Button onClick={() => skipTime(20)} size="sm" variant="outline">+20 min</Button>
+            <Button onClick={() => skipTime(30)} size="sm" variant="outline">+30 min</Button>
+            <Button onClick={() => resetTimer()} size="sm" variant="destructive">Reset</Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">Press Shift+A to hide this panel</p>
+        </div>
+      )}
+      
       {/* Timer Display */}
       <div className="text-center mb-6">
         <div className="inline-flex items-center justify-center gap-3 elite-card px-8 py-4 rounded-xl">
