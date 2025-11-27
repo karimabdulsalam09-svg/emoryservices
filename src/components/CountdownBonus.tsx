@@ -31,9 +31,11 @@ const CountdownBonus = () => {
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 0) {
-          localStorage.removeItem("optima-countdown-start");
-          return 37 * 60; // Reset
+        if (prev <= 1) {
+          // Reset timer and set new start time
+          const newStartTime = Date.now();
+          localStorage.setItem("optima-countdown-start", newStartTime.toString());
+          return 37 * 60;
         }
         return prev - 1;
       });
