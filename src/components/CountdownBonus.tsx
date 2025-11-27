@@ -1,23 +1,10 @@
 import { useEffect, useState } from "react";
-
-interface Bonus {
-  timeRange: string;
-  title: string;
-  active: boolean;
-}
+import { Trophy, Zap, FileText, Sparkles, Clock } from "lucide-react";
 
 const CountdownBonus = () => {
   const [timeLeft, setTimeLeft] = useState(37 * 60); // 37 minutes in seconds
-  const [bonuses, setBonuses] = useState<Bonus[]>([
-    { timeRange: "0-10", title: "75/25 Split on First $2K", active: false },
-    { timeRange: "10-15", title: "Front-of-Queue Priority", active: false },
-    { timeRange: "15-20", title: "Personalized Topic Audit", active: false },
-    { timeRange: "20-37", title: "Free Product Blueprint", active: false },
-    { timeRange: "37+", title: "Bonuses Reset", active: false },
-  ]);
 
   useEffect(() => {
-    // Check if timer exists in localStorage
     const storedTime = localStorage.getItem("optima-countdown-start");
     const now = Date.now();
     
@@ -32,7 +19,6 @@ const CountdownBonus = () => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          // Reset timer and set new start time
           const newStartTime = Date.now();
           localStorage.setItem("optima-countdown-start", newStartTime.toString());
           return 37 * 60;
@@ -44,54 +30,92 @@ const CountdownBonus = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const minutesLeft = Math.floor(timeLeft / 60);
-    const updatedBonuses = bonuses.map((bonus) => {
-      if (bonus.timeRange === "0-10") return { ...bonus, active: minutesLeft >= 27 };
-      if (bonus.timeRange === "10-15") return { ...bonus, active: minutesLeft >= 22 && minutesLeft < 27 };
-      if (bonus.timeRange === "15-20") return { ...bonus, active: minutesLeft >= 17 && minutesLeft < 22 };
-      if (bonus.timeRange === "20-37") return { ...bonus, active: minutesLeft > 0 && minutesLeft < 17 };
-      if (bonus.timeRange === "37+") return { ...bonus, active: minutesLeft === 0 };
-      return bonus;
-    });
-    setBonuses(updatedBonuses);
-  }, [timeLeft]);
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const minutesLeft = Math.floor(timeLeft / 60);
+  
+  // Determine current bonus based on time remaining
+  const getCurrentBonus = () => {
+    if (minutesLeft >= 27) {
+      return {
+        icon: Trophy,
+        title: "PREMIUM BONUS",
+        description: "Book now to win 75/25 revenue split on your first $2K",
+        color: "text-gradient-red-orange"
+      };
+    } else if (minutesLeft >= 22) {
+      return {
+        icon: Zap,
+        title: "PRIORITY BONUS",
+        description: "Book now to win front-of-queue priority access",
+        color: "text-gradient-red-orange"
+      };
+    } else if (minutesLeft >= 17) {
+      return {
+        icon: Sparkles,
+        title: "STRATEGY BONUS",
+        description: "Book now to win a personalized monetizable topic audit",
+        color: "text-gradient-orange-blue"
+      };
+    } else if (minutesLeft > 0) {
+      return {
+        icon: FileText,
+        title: "BLUEPRINT BONUS",
+        description: "Book now to win a free product blueprint draft",
+        color: "text-gradient-orange-blue"
+      };
+    } else {
+      return {
+        icon: Clock,
+        title: "BONUSES RESET",
+        description: "Timer expired. Bonuses will reset on next visit.",
+        color: "text-muted-foreground"
+      };
+    }
+  };
+
+  const currentBonus = getCurrentBonus();
+  const BonusIcon = currentBonus.icon;
+
   return (
-    <div className="w-full max-w-2xl mx-auto mt-8 animate-fade-up" style={{ animationDelay: "0.4s" }}>
-      {/* Digital Timer */}
-      <div className="text-center mb-4">
-        <div className="text-4xl font-bold text-gradient-red-orange inline-block px-6 py-3 elite-card rounded-lg">
-          {formatTime(timeLeft)}
-        </div>
-      </div>
-
-      {/* 5-Segment Bonus Bar */}
-      <div className="flex gap-1 mb-4">
-        {bonuses.map((bonus, index) => (
-          <div
-            key={index}
-            className={`flex-1 h-16 rounded-lg flex items-center justify-center text-xs font-semibold text-center px-2 transition-all duration-300 ${
-              bonus.active
-                ? "gradient-red-orange text-white glow-orange scale-105"
-                : "bg-muted/50 text-muted-foreground"
-            }`}
-          >
-            {bonus.title}
+    <div className="w-full max-w-3xl mx-auto mt-12 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+      <div className="elite-card p-8 text-center space-y-6">
+        {/* Timer Display */}
+        <div className="inline-flex items-center justify-center gap-3">
+          <Clock className="w-8 h-8 text-gradient-red-orange" />
+          <div className="text-5xl md:text-6xl font-bold text-gradient-red-orange">
+            {formatTime(timeLeft)}
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Helper Text */}
-      <p className="text-sm text-muted-foreground text-center">
-        Book a call before the timer ends to unlock exclusive bonuses.
-      </p>
+        {/* Bonus Icon */}
+        <div className="flex justify-center">
+          <div className={`p-6 rounded-full ${minutesLeft > 0 ? 'gradient-red-orange glow-orange' : 'bg-muted/50'} transition-all duration-500`}>
+            <BonusIcon className="w-12 h-12 text-white" />
+          </div>
+        </div>
+
+        {/* Bonus Title */}
+        <div>
+          <h3 className={`text-2xl font-bold mb-2 ${currentBonus.color}`}>
+            {currentBonus.title}
+          </h3>
+          <p className="text-lg text-foreground font-semibold">
+            {currentBonus.description}
+          </p>
+        </div>
+
+        {/* Helper Text */}
+        {minutesLeft > 0 && (
+          <p className="text-sm text-muted-foreground pt-2">
+            Exclusive bonus expires when timer reaches zero
+          </p>
+        )}
+      </div>
     </div>
   );
 };
