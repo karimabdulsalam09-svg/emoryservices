@@ -1,45 +1,67 @@
+import { useState, useEffect } from "react";
 import Hero from "@/components/Hero";
 import FeatureCards from "@/components/FeatureCards";
-import About from "@/components/About";
-import WhatWeBuild from "@/components/WhatWeBuild";
+import WhatOptimaBuilds from "@/components/WhatOptimaBuilds";
 import HowItWorks from "@/components/HowItWorks";
+import WhyCreatorsFail from "@/components/WhyCreatorsFail";
+import WhatHappensOnCall from "@/components/WhatHappensOnCall";
 import VisualElements from "@/components/VisualElements";
 import EconomicMetrics from "@/components/EconomicMetrics";
 import SocialProof from "@/components/SocialProof";
+import PricingTransparency from "@/components/PricingTransparency";
 import LaunchTimeline from "@/components/LaunchTimeline";
 import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import BackgroundGlows from "@/components/BackgroundGlows";
 import CountdownBonus from "@/components/CountdownBonus";
+import AdminPanel from "@/components/AdminPanel";
 
 const Index = () => {
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.shiftKey && e.key === 'S') {
+        setShowAdmin(prev => !prev);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       <BackgroundGlows />
+      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
       <div className="relative z-10">
         <Hero />
-      <FeatureCards />
-      <About />
-      <WhatWeBuild />
-      <HowItWorks />
-      <VisualElements />
-      <EconomicMetrics />
-      <SocialProof />
-      <LaunchTimeline />
+        <FeatureCards />
+        <WhatOptimaBuilds />
+        <HowItWorks />
+        <WhyCreatorsFail />
+        <WhatHappensOnCall />
+        <VisualElements />
+        <EconomicMetrics />
+        <SocialProof />
+        <PricingTransparency />
+        <LaunchTimeline />
         
         {/* Countdown Bonus Reminder Section */}
         <section className="py-24 relative overflow-hidden">
           <div className="container mx-auto px-6">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-gradient-red-orange mb-4">
-                Don't Miss Your Exclusive Bonus
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Book your call now before the timer runs out
-              </p>
+            <div className="elite-card rounded-2xl p-8 max-w-4xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl md:text-4xl font-bold text-gradient-red-orange mb-4">
+                  Don't Miss Your Exclusive Bonus
+                </h2>
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                  Book within the countdown to unlock exclusive bonuses
+                </p>
+              </div>
+              <CountdownBonus />
             </div>
-            <CountdownBonus />
           </div>
         </section>
         

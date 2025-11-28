@@ -28,8 +28,17 @@ const Booking = () => {
       return;
     }
     
-    // Simulate form submission
-    console.log("Form submitted:", formData);
+    // Store booking data in localStorage
+    const bookingData = {
+      ...formData,
+      timestamp: new Date().toISOString()
+    };
+    
+    const existingBookings = localStorage.getItem("optima-bookings");
+    const bookings = existingBookings ? JSON.parse(existingBookings) : [];
+    bookings.push(bookingData);
+    localStorage.setItem("optima-bookings", JSON.stringify(bookings));
+    
     setSubmitted(true);
     toast.success("Your booking request has been submitted!");
   };

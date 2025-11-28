@@ -101,14 +101,13 @@ const CountdownBonus = () => {
       title: "Free Blueprint",
       description: "Book now to win a free product blueprint draft",
       active: minutesLeft > 0 && minutesLeft < 17
-    },
-    {
-      icon: Clock,
-      title: "Bonuses Reset",
-      description: "Timer expired. Next visit resets bonuses.",
-      active: minutesLeft === 0
     }
   ];
+
+  const currentBonus = bonuses.find(b => b.active);
+  const bonusDescription = timeLeft === 0 
+    ? "Reward Expired" 
+    : currentBonus?.description || "";
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-12 animate-fade-up" style={{ animationDelay: "0.4s" }}>
@@ -159,8 +158,8 @@ const CountdownBonus = () => {
 
       {/* Active Bonus Description */}
       <div className="text-center">
-        <p className="text-lg font-semibold text-foreground">
-          {bonuses.find(b => b.active)?.description}
+        <p className={`text-lg font-semibold ${timeLeft === 0 ? 'text-muted-foreground' : 'text-foreground'}`}>
+          {bonusDescription}
         </p>
         {minutesLeft > 0 && (
           <p className="text-sm text-muted-foreground mt-2">
