@@ -137,7 +137,7 @@ const CountdownBonus = () => {
       </div>
 
       {/* Bonus Segments */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 justify-items-center">
         {bonuses.map((bonus, index) => {
           const BonusIcon = bonus.icon;
           return (
