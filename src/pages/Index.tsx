@@ -15,26 +15,11 @@ import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import BackgroundGlows from "@/components/BackgroundGlows";
 import CountdownBonus from "@/components/CountdownBonus";
-import AdminPanel from "@/components/AdminPanel";
 
 const Index = () => {
-  const [showAdmin, setShowAdmin] = useState(false);
-
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.shiftKey && e.key === 'S') {
-        setShowAdmin(prev => !prev);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       <BackgroundGlows />
-      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
       <div className="relative z-10">
         <Hero />
         <FeatureCards />

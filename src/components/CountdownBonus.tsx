@@ -77,6 +77,17 @@ const CountdownBonus = () => {
 
   const minutesLeft = Math.floor(timeLeft / 60);
   
+  // Set bonus tier cookie based on time remaining
+  useEffect(() => {
+    let tier = 'none';
+    if (minutesLeft >= 27) tier = '0-10';
+    else if (minutesLeft >= 22) tier = '10-15';
+    else if (minutesLeft >= 17) tier = '15-20';
+    else if (minutesLeft > 0) tier = '20-37';
+    
+    document.cookie = `optima_bonus_tier=${tier}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
+  }, [minutesLeft]);
+  
   const bonuses: Bonus[] = [
     {
       icon: Trophy,

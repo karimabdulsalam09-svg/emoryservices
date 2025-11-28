@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Booking = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -19,7 +20,7 @@ const Booking = () => {
     holdback: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -28,16 +29,43 @@ const Booking = () => {
       return;
     }
     
-    // Store booking data in localStorage
-    const bookingData = {
-      ...formData,
-      timestamp: new Date().toISOString()
+    // Get bonus tier from cookie
+    const getBonusTier = () => {
+      const cookies = document.cookie.split(';');
+      const bonusCookie = cookies.find(c => c.trim().startsWith('optima_bonus_tier='));
+      return bonusCookie ? bonusCookie.split('=')[1] : 'none';
     };
     
-    const existingBookings = localStorage.getItem("optima-bookings");
-    const bookings = existingBookings ? JSON.parse(existingBookings) : [];
-    bookings.push(bookingData);
-    localStorage.setItem("optima-bookings", JSON.stringify(bookings));
+    const bonusTier = getBonusTier();
+    
+    // Parse audience size to number
+    const parseFollowers = (audienceSize: string) => {
+      if (!audienceSize) return null;
+      if (audienceSize === "0-1k") return 500;
+      if (audienceSize === "1k-10k") return 5000;
+      if (audienceSize === "10k-50k") return 30000;
+      if (audienceSize === "50k-100k") return 75000;
+      if (audienceSize === "100k+") return 100000;
+      return null;
+    };
+    
+    // Save to database
+    const { error } = await supabase.from('bookings').insert({
+      name: formData.name,
+      email: formData.email,
+      instagram_handle: formData.socialHandle,
+      followers: parseFollowers(formData.audienceSize),
+      niche: formData.niche || null,
+      message: formData.holdback || null,
+      bonus_tier: bonusTier,
+      source_page: window.location.pathname
+    });
+    
+    if (error) {
+      console.error('Error saving booking:', error);
+      toast.error("There was an error submitting your booking. Please try again.");
+      return;
+    }
     
     setSubmitted(true);
     toast.success("Your booking request has been submitted!");
