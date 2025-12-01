@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, TrendingUp, Clock, Target, Edit, Trash2, Plus, Download, RefreshCw, LogOut } from "lucide-react";
+import { Users, TrendingUp, Clock, Target, Edit, Trash2, Plus, Download, RefreshCw, LogOut, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 interface Booking {
@@ -176,6 +176,33 @@ const Dashboard = () => {
     } else {
       toast.success("Booking deleted successfully");
       fetchBookings();
+    }
+  };
+
+  const handleEmailBooking = async (booking: Booking) => {
+    try {
+      toast.loading("Sending email...");
+      
+      const { data, error } = await supabase.functions.invoke('send-booking-notification', {
+        body: {
+          name: booking.name,
+          email: booking.email,
+          instagramHandle: booking.instagram_handle,
+          niche: booking.niche,
+          followers: booking.followers?.toString() || '0',
+          message: booking.message,
+          bonusTier: booking.bonus_tier,
+        }
+      });
+
+      if (error) throw error;
+
+      toast.dismiss();
+      toast.success("Email sent successfully to karim.2009.gg@gmail.com");
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast.dismiss();
+      toast.error("Failed to send email");
     }
   };
 
@@ -443,6 +470,15 @@ const Dashboard = () => {
                   </div>
                   
                   <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEmailBooking(booking)}
+                      className="gap-2"
+                    >
+                      <Mail className="w-4 h-4" />
+                      Email
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
