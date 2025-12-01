@@ -1,0 +1,149 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "npm:resend@4.0.0";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface BookingNotificationRequest {
+  name: string;
+  email: string;
+  instagramHandle: string;
+  niche: string;
+  followers: string;
+  productType: string;
+  message: string;
+  bonusTier: string;
+}
+
+const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const bookingData: BookingNotificationRequest = await req.json();
+    
+    console.log("Received booking notification request:", bookingData);
+
+    // Format the follower count for display
+    const followerDisplay = bookingData.followers || "Not specified";
+    
+    // Format bonus tier for display
+    const bonusTierDisplay = bookingData.bonusTier === "none" 
+      ? "No bonus (timer expired)" 
+      : `Tier: ${bookingData.bonusTier} minutes`;
+
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; }
+            .header h1 { margin: 0; font-size: 24px; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .info-block { background: white; padding: 20px; margin: 15px 0; border-radius: 6px; border-left: 4px solid #ff4500; }
+            .info-block h3 { margin-top: 0; color: #ff4500; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+            .info-block p { margin: 8px 0; }
+            .label { font-weight: 600; color: #666; }
+            .message-box { background: #fff3e0; padding: 15px; border-radius: 6px; margin-top: 15px; }
+            .footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🎯 New Optima Booking</h1>
+            </div>
+            <div class="content">
+              <div class="info-block">
+                <h3>Creator Information</h3>
+                <p><span class="label">Name:</span> ${bookingData.name}</p>
+                <p><span class="label">Email:</span> ${bookingData.email}</p>
+                <p><span class="label">Instagram:</span> ${bookingData.instagramHandle || "Not provided"}</p>
+              </div>
+
+              <div class="info-block">
+                <h3>Audience & Niche</h3>
+                <p><span class="label">Followers:</span> ${followerDisplay}</p>
+                <p><span class="label">Niche:</span> ${bookingData.niche || "Not specified"}</p>
+              </div>
+
+              <div class="info-block">
+                <h3>Product Interest</h3>
+                <p><span class="label">Product Type:</span> ${bookingData.productType}</p>
+              </div>
+
+              <div class="info-block">
+                <h3>Bonus Qualification</h3>
+                <p><span class="label">Bonus Tier:</span> ${bonusTierDisplay}</p>
+              </div>
+
+              ${bookingData.message ? `
+              <div class="info-block">
+                <h3>Their Message</h3>
+                <div class="message-box">
+                  ${bookingData.message}
+                </div>
+              </div>
+              ` : ''}
+
+              <div class="info-block">
+                <h3>Submitted</h3>
+                <p>${new Date().toLocaleString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}</p>
+              </div>
+            </div>
+            <div class="footer">
+              Optima Booking System • Automated Notification
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const emailResponse = await resend.emails.send({
+      from: "Optima Bookings <onboarding@resend.dev>",
+      to: ["karim.2009.gg@gmail.com"],
+      subject: `🎯 New Optima Booking: ${bookingData.name} - ${bookingData.niche || "No Niche"}`,
+      html: emailHtml,
+    });
+
+    console.log("Email sent successfully:", emailResponse);
+
+    return new Response(
+      JSON.stringify({ success: true, data: emailResponse }), 
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      }
+    );
+  } catch (error: any) {
+    console.error("Error in send-booking-notification function:", error);
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
+  }
+};
+
+serve(handler);
