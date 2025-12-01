@@ -66,6 +66,26 @@ const Booking = () => {
       toast.error("There was an error submitting your booking. Please try again.");
       return;
     }
+
+    // Send email notification (non-blocking - booking succeeds even if email fails)
+    try {
+      await supabase.functions.invoke('send-booking-notification', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          instagramHandle: formData.socialHandle,
+          niche: formData.niche,
+          followers: formData.audienceSize,
+          productType: formData.productType,
+          message: formData.holdback,
+          bonusTier: bonusTier,
+        }
+      });
+      console.log('Booking notification sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send booking notification email:', emailError);
+      // Don't block the user experience - booking already succeeded
+    }
     
     setSubmitted(true);
     toast.success("Your booking request has been submitted!");
