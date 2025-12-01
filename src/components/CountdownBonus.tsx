@@ -12,6 +12,7 @@ interface Bonus {
 const CountdownBonus = () => {
   const [timeLeft, setTimeLeft] = useState(37 * 60); // 37 minutes in seconds
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
     const storedTime = localStorage.getItem("optima-countdown-start");
@@ -21,6 +22,9 @@ const CountdownBonus = () => {
       const elapsed = Math.floor((now - parseInt(storedTime)) / 1000);
       const remaining = Math.max(0, 37 * 60 - elapsed);
       setTimeLeft(remaining);
+      if (remaining === 0) {
+        setIsExpired(true);
+      }
     } else {
       localStorage.setItem("optima-countdown-start", now.toString());
     }
@@ -28,11 +32,26 @@ const CountdownBonus = () => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          const newStartTime = Date.now();
-          localStorage.setItem("optima-countdown-start", newStartTime.toString());
-          return 37 * 60;
+          setIsExpired(true);
+          clearInterval(interval);
+          
+          // Update cookie to "none" when expired
+          document.cookie = `optima_bonus_tier=none; path=/; max-age=${60 * 60 * 24 * 7}`;
+          return 0;
         }
-        return prev - 1;
+        
+        const newTime = prev - 1;
+        
+        // Update cookie on each tick based on remaining time
+        let tier = 'none';
+        if (newTime > 27 * 60) tier = '0-10';
+        else if (newTime > 22 * 60) tier = '10-15';
+        else if (newTime > 17 * 60) tier = '15-20';
+        else if (newTime > 0) tier = '20-37';
+        
+        document.cookie = `optima_bonus_tier=${tier}; path=/; max-age=${60 * 60 * 24 * 7}`;
+        
+        return newTime;
       });
     }, 1000);
 
@@ -77,48 +96,34 @@ const CountdownBonus = () => {
 
   const minutesLeft = Math.floor(timeLeft / 60);
   
-  // Set bonus tier cookie based on time remaining
-  useEffect(() => {
-    let tier = 'none';
-    if (minutesLeft >= 27) tier = '0-10';
-    else if (minutesLeft >= 22) tier = '10-15';
-    else if (minutesLeft >= 17) tier = '15-20';
-    else if (minutesLeft > 0) tier = '20-37';
-    
-    document.cookie = `optima_bonus_tier=${tier}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
-  }, [minutesLeft]);
-  
   const bonuses: Bonus[] = [
     {
       icon: Trophy,
       title: "75/25 Split",
       description: "Book now to win 75/25 revenue split on first $2K",
-      active: minutesLeft >= 27
+      active: !isExpired && timeLeft > 27 * 60
     },
     {
       icon: Zap,
       title: "Priority Access",
       description: "Book now to win front-of-queue priority",
-      active: minutesLeft >= 22 && minutesLeft < 27
+      active: !isExpired && timeLeft > 22 * 60 && timeLeft <= 27 * 60
     },
     {
       icon: Sparkles,
       title: "Topic Audit",
       description: "Book now to win personalized monetizable topic audit",
-      active: minutesLeft >= 17 && minutesLeft < 22
+      active: !isExpired && timeLeft > 17 * 60 && timeLeft <= 22 * 60
     },
     {
       icon: FileText,
       title: "Free Blueprint",
       description: "Book now to win a free product blueprint draft",
-      active: minutesLeft > 0 && minutesLeft < 17
+      active: !isExpired && timeLeft > 0 && timeLeft <= 17 * 60
     }
   ];
 
   const currentBonus = bonuses.find(b => b.active);
-  const bonusDescription = timeLeft === 0 
-    ? "Reward Expired" 
-    : currentBonus?.description || "";
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-12 animate-fade-up" style={{ animationDelay: "0.4s" }}>
@@ -139,45 +144,59 @@ const CountdownBonus = () => {
       
       {/* Timer Display */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center gap-3 elite-card px-8 py-4 rounded-xl">
-          <Clock className="w-8 h-8 text-gradient-red-orange" />
-          <div className="text-5xl md:text-6xl font-bold text-gradient-red-orange">
-            {formatTime(timeLeft)}
+        <div className="relative inline-block">
+          <div className="inline-flex items-center justify-center gap-3 elite-card px-8 py-4 rounded-xl">
+            <Clock className="w-8 h-8 text-gradient-red-orange" />
+            <div className="text-5xl md:text-6xl font-bold text-gradient-red-orange">
+              {formatTime(timeLeft)}
+            </div>
           </div>
+          
+          {/* Expired Overlay */}
+          {isExpired && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/95 rounded-xl border-2 border-destructive">
+              <div className="text-center px-4">
+                <p className="text-xl md:text-2xl font-bold text-destructive">EXPIRED</p>
+                <p className="text-sm text-muted-foreground mt-1">Bonuses no longer available</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Bonus Segments */}
-      <div className="flex flex-wrap justify-center gap-2 mb-4 max-w-2xl mx-auto">
-        {bonuses.map((bonus, index) => {
-          const BonusIcon = bonus.icon;
-          return (
-            <div
-              key={index}
-              className={`elite-card p-4 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-300 ${
-                bonus.active
-                  ? "gradient-red-orange text-white glow-orange scale-105"
-                  : "bg-muted/50 text-muted-foreground"
-              }`}
-            >
-              <BonusIcon className={`w-8 h-8 mb-2 ${bonus.active ? 'text-white' : 'text-muted-foreground'}`} />
-              <p className="text-xs font-bold">{bonus.title}</p>
-            </div>
-          );
-        })}
-      </div>
+      {/* Bonus Segments - Only show if not expired */}
+      {!isExpired && (
+        <>
+          <div className="flex flex-wrap justify-center gap-2 mb-4 max-w-2xl mx-auto">
+            {bonuses.map((bonus, index) => {
+              const BonusIcon = bonus.icon;
+              return (
+                <div
+                  key={index}
+                  className={`elite-card p-4 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-300 ${
+                    bonus.active
+                      ? "gradient-red-orange text-white glow-orange scale-105"
+                      : "bg-muted/50 text-muted-foreground"
+                  }`}
+                >
+                  <BonusIcon className={`w-8 h-8 mb-2 ${bonus.active ? 'text-white' : 'text-muted-foreground'}`} />
+                  <p className="text-xs font-bold">{bonus.title}</p>
+                </div>
+              );
+            })}
+          </div>
 
-      {/* Active Bonus Description */}
-      <div className="text-center">
-        <p className={`text-lg font-semibold ${timeLeft === 0 ? 'text-muted-foreground' : 'text-foreground'}`}>
-          {bonusDescription}
-        </p>
-        {minutesLeft > 0 && (
-          <p className="text-sm text-muted-foreground mt-2">
-            Exclusive bonus expires when timer reaches zero
-          </p>
-        )}
-      </div>
+          {/* Active Bonus Description */}
+          <div className="text-center">
+            <p className="text-lg font-semibold text-foreground">
+              {currentBonus?.description}
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Exclusive bonus expires when timer reaches zero
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 };

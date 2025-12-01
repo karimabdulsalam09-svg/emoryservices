@@ -90,11 +90,11 @@ const VisualElements = () => {
 
         {/* Workflow Diagram */}
         <div className="max-w-5xl mx-auto animate-fade-up" style={{ animationDelay: "0.3s" }}>
-          <div className="elite-card rounded-xl p-12">
+          <div className="elite-card rounded-xl p-8 md:p-12">
             <h3 className="text-2xl font-bold mb-12 text-center text-foreground">
               The Optima Workflow
             </h3>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-4 md:gap-6">
               {[
                 { label: "Idea", color: "gradient-red-orange" },
                 { label: "Product Blueprint", color: "gradient-orange-blue" },
@@ -102,12 +102,12 @@ const VisualElements = () => {
                 { label: "Launch", color: "gradient-red-orange" },
                 { label: "Revenue", color: "gradient-orange-blue" },
               ].map((step, index) => (
-                <div key={index} className="flex items-center gap-6">
-                  <div className={`${step.color} text-white px-8 py-4 rounded-lg font-bold text-lg text-center min-w-[160px] glow-orange`}>
+                <div key={index} className="flex items-center gap-4 md:gap-6">
+                  <div className={`${step.color} text-white px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg text-center min-w-[140px] md:min-w-[160px] glow-orange`}>
                     {step.label}
                   </div>
                   {index < 4 && (
-                    <ArrowRight className="text-primary w-8 h-8 hidden md:block" />
+                    <ArrowRight className="text-primary w-6 h-6 md:w-8 md:h-8 hidden md:block flex-shrink-0" />
                   )}
                 </div>
               ))}
