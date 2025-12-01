@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Hero from "@/components/Hero";
 import FeatureCards from "@/components/FeatureCards";
 import WhatOptimaBuilds from "@/components/WhatOptimaBuilds";
+import About from "@/components/About";
 import HowItWorks from "@/components/HowItWorks";
 import WhyCreatorsFail from "@/components/WhyCreatorsFail";
 import WhatHappensOnCall from "@/components/WhatHappensOnCall";
@@ -24,6 +25,7 @@ const Index = () => {
         <Hero />
         <FeatureCards />
         <WhatOptimaBuilds />
+        <About />
         <HowItWorks />
         <WhyCreatorsFail />
         <WhatHappensOnCall />
