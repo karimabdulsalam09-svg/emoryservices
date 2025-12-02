@@ -1,11 +1,11 @@
 import { Lightbulb, FileText, Wrench, Rocket, DollarSign } from "lucide-react";
 
 const timelineSteps = [
-  { day: "Day 1", title: "Topic Selection", icon: Lightbulb },
-  { day: "Day 3", title: "Blueprint", icon: FileText },
-  { day: "Day 5", title: "Backend Build", icon: Wrench },
-  { day: "Day 10", title: "Launch", icon: Rocket },
-  { day: "Day 11+", title: "Revenue Flows", icon: DollarSign },
+  { day: "Week 1", title: "Topic Selection", icon: Lightbulb },
+  { day: "Week 1", title: "Blueprint", icon: FileText },
+  { day: "Week 2", title: "Backend Build", icon: Wrench },
+  { day: "Week 3", title: "Launch", icon: Rocket },
+  { day: "Week 4", title: "Revenue Flows", icon: DollarSign },
 ];
 
 const LaunchTimeline = () => {
