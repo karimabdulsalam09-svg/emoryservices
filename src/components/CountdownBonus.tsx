@@ -86,6 +86,7 @@ const CountdownBonus = () => {
   const resetTimer = () => {
     localStorage.setItem("optima-countdown-start", Date.now().toString());
     setTimeLeft(37 * 60);
+    setIsExpired(false);
   };
 
   const formatTime = (seconds: number) => {
