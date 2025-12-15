@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, TrendingUp, Clock, Target, Edit, Trash2, Plus, Download, RefreshCw, LogOut, Mail } from "lucide-react";
+import { Users, TrendingUp, Clock, Target, Edit, Trash2, Download, RefreshCw, LogOut, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { User, Session } from "@supabase/supabase-js";
 
 interface Booking {
   id: string;
@@ -34,6 +35,9 @@ interface Stats {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -51,16 +55,56 @@ const Dashboard = () => {
   const [filterNiche, setFilterNiche] = useState<string>("all");
 
   useEffect(() => {
-    // Check authentication
-    const token = sessionStorage.getItem('adminToken');
-    const expiry = sessionStorage.getItem('adminTokenExpiry');
-    
-    if (!token || !expiry || new Date(expiry) < new Date()) {
-      toast.error("Session expired. Please login again.");
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Defer admin check to avoid Supabase deadlock
+        if (session?.user) {
+          setTimeout(() => {
+            checkAdminRole(session.user.id);
+          }, 0);
+        } else {
+          setIsAdmin(false);
+          setLoading(false);
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      } else {
+        toast.error("Please login to access the dashboard.");
+        navigate("/admin/login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const checkAdminRole = async (userId: string) => {
+    const { data: roleData, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .single();
+
+    if (error || !roleData) {
+      toast.error("You don't have admin access.");
+      await supabase.auth.signOut();
       navigate("/admin/login");
       return;
     }
 
+    setIsAdmin(true);
     fetchBookings();
     
     // Set up realtime subscription
@@ -82,7 +126,7 @@ const Dashboard = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [navigate]);
+  };
 
   useEffect(() => {
     // Apply filters
@@ -117,6 +161,7 @@ const Dashboard = () => {
 
     if (error) {
       console.error('Error fetching bookings:', error);
+      toast.error("Failed to fetch bookings. You may not have access.");
       setLoading(false);
       return;
     }
@@ -127,9 +172,8 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('adminToken');
-    sessionStorage.removeItem('adminTokenExpiry');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     toast.success("Logged out successfully");
     navigate("/admin/login");
   };
@@ -290,6 +334,14 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-muted-foreground">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Checking access...</p>
       </div>
     );
   }
@@ -531,12 +583,18 @@ const Dashboard = () => {
                 )}
               </div>
             ))}
+
+            {filteredBookings.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                No bookings found matching your filters.
+              </p>
+            )}
           </div>
         </Card>
 
         {/* Edit Dialog */}
         <Dialog open={!!editingBooking} onOpenChange={() => setEditingBooking(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Edit Booking</DialogTitle>
             </DialogHeader>
@@ -554,7 +612,6 @@ const Dashboard = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Email</label>
                   <Input
-                    type="email"
                     value={editingBooking.email}
                     onChange={(e) =>
                       setEditingBooking({ ...editingBooking, email: e.target.value })
@@ -566,7 +623,10 @@ const Dashboard = () => {
                   <Input
                     value={editingBooking.instagram_handle || ''}
                     onChange={(e) =>
-                      setEditingBooking({ ...editingBooking, instagram_handle: e.target.value })
+                      setEditingBooking({
+                        ...editingBooking,
+                        instagram_handle: e.target.value || null,
+                      })
                     }
                   />
                 </div>
@@ -575,7 +635,10 @@ const Dashboard = () => {
                   <Input
                     value={editingBooking.niche || ''}
                     onChange={(e) =>
-                      setEditingBooking({ ...editingBooking, niche: e.target.value })
+                      setEditingBooking({
+                        ...editingBooking,
+                        niche: e.target.value || null,
+                      })
                     }
                   />
                 </div>
@@ -584,18 +647,18 @@ const Dashboard = () => {
                   <Textarea
                     value={editingBooking.message || ''}
                     onChange={(e) =>
-                      setEditingBooking({ ...editingBooking, message: e.target.value })
+                      setEditingBooking({
+                        ...editingBooking,
+                        message: e.target.value || null,
+                      })
                     }
-                    rows={4}
                   />
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setEditingBooking(null)}>
                     Cancel
                   </Button>
-                  <Button variant="gradient" onClick={handleSaveEdit}>
-                    Save Changes
-                  </Button>
+                  <Button onClick={handleSaveEdit}>Save Changes</Button>
                 </div>
               </div>
             )}
