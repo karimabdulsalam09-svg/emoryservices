@@ -217,9 +217,15 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
   } catch (error: any) {
-    console.error("Error in send-booking-notification function:", error);
+    // Log detailed error server-side for debugging
+    console.error("Error in send-booking-notification function:", {
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    // Return generic error to client - don't expose internal details
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: 'An error occurred processing your request. Please try again later.' }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

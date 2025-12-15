@@ -7,6 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+// Schema validation for booking form
+const bookingSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Please enter a valid email address").max(254, "Email must be less than 254 characters"),
+  socialHandle: z.string().trim().min(1, "Social handle is required").max(50, "Social handle must be less than 50 characters"),
+  niche: z.string().max(100, "Niche must be less than 100 characters").optional().or(z.literal("")),
+  audienceSize: z.string().optional(),
+  productType: z.string().optional(),
+  holdback: z.string().max(2000, "Message must be less than 2000 characters").optional().or(z.literal("")),
+});
 
 const Booking = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -23,11 +35,15 @@ const Booking = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
-    if (!formData.name || !formData.email || !formData.socialHandle) {
-      toast.error("Please fill in all required fields");
+    // Validate form data with Zod
+    const validationResult = bookingSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast.error(firstError.message);
       return;
     }
+    
+    const validatedData = validationResult.data;
     
     // Get bonus tier from cookie
     const getBonusTier = () => {
@@ -49,14 +65,14 @@ const Booking = () => {
       return null;
     };
     
-    // Save to database
+    // Save to database using validated data
     const { error } = await supabase.from('bookings').insert({
-      name: formData.name,
-      email: formData.email,
-      instagram_handle: formData.socialHandle,
-      followers: parseFollowers(formData.audienceSize),
-      niche: formData.niche || null,
-      message: formData.holdback || null,
+      name: validatedData.name,
+      email: validatedData.email,
+      instagram_handle: validatedData.socialHandle,
+      followers: parseFollowers(validatedData.audienceSize || ''),
+      niche: validatedData.niche || null,
+      message: validatedData.holdback || null,
       bonus_tier: bonusTier,
       source_page: window.location.pathname
     });
@@ -71,13 +87,13 @@ const Booking = () => {
     try {
       await supabase.functions.invoke('send-booking-notification', {
         body: {
-          name: formData.name,
-          email: formData.email,
-          instagramHandle: formData.socialHandle,
-          niche: formData.niche,
-          followers: formData.audienceSize,
-          productType: formData.productType,
-          message: formData.holdback,
+          name: validatedData.name,
+          email: validatedData.email,
+          instagramHandle: validatedData.socialHandle,
+          niche: validatedData.niche || '',
+          followers: validatedData.audienceSize || '',
+          productType: validatedData.productType || '',
+          message: validatedData.holdback || '',
           bonusTier: bonusTier,
         }
       });
