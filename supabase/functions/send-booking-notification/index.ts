@@ -1,5 +1,5 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.86.0';
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -19,6 +19,19 @@ interface BookingNotificationRequest {
   bonusTier: string;
 }
 
+// HTML escape function to prevent XSS
+function escapeHtml(text: string | null | undefined): string {
+  if (!text) return '';
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -26,17 +39,72 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("No authorization header provided");
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Create Supabase client to verify user
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get and verify user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Check if user has admin role
+    const { data: roleData, error: roleError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+
+    if (roleError || !roleData) {
+      console.error("User is not an admin:", user.id);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Forbidden: Admin access required' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("Admin user authenticated:", user.id);
+
     const bookingData: BookingNotificationRequest = await req.json();
     
-    console.log("Received booking notification request:", bookingData);
+    console.log("Received booking notification request for:", escapeHtml(bookingData.name));
+
+    // Sanitize all user inputs
+    const safeName = escapeHtml(bookingData.name);
+    const safeEmail = escapeHtml(bookingData.email);
+    const safeInstagram = escapeHtml(bookingData.instagramHandle);
+    const safeNiche = escapeHtml(bookingData.niche);
+    const safeFollowers = escapeHtml(bookingData.followers);
+    const safeProductType = escapeHtml(bookingData.productType);
+    const safeMessage = escapeHtml(bookingData.message);
+    const safeBonusTier = escapeHtml(bookingData.bonusTier);
 
     // Format the follower count for display
-    const followerDisplay = bookingData.followers || "Not specified";
+    const followerDisplay = safeFollowers || "Not specified";
     
     // Format bonus tier for display
     const bonusTierDisplay = bookingData.bonusTier === "none" 
       ? "No bonus (timer expired)" 
-      : `Tier: ${bookingData.bonusTier} minutes`;
+      : `Tier: ${safeBonusTier} minutes`;
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -64,20 +132,20 @@ const handler = async (req: Request): Promise<Response> => {
             <div class="content">
               <div class="info-block">
                 <h3>Creator Information</h3>
-                <p><span class="label">Name:</span> ${bookingData.name}</p>
-                <p><span class="label">Email:</span> ${bookingData.email}</p>
-                <p><span class="label">Instagram:</span> ${bookingData.instagramHandle || "Not provided"}</p>
+                <p><span class="label">Name:</span> ${safeName}</p>
+                <p><span class="label">Email:</span> ${safeEmail}</p>
+                <p><span class="label">Instagram:</span> ${safeInstagram || "Not provided"}</p>
               </div>
 
               <div class="info-block">
-                <h3>Audience & Niche</h3>
+                <h3>Audience &amp; Niche</h3>
                 <p><span class="label">Followers:</span> ${followerDisplay}</p>
-                <p><span class="label">Niche:</span> ${bookingData.niche || "Not specified"}</p>
+                <p><span class="label">Niche:</span> ${safeNiche || "Not specified"}</p>
               </div>
 
               <div class="info-block">
                 <h3>Product Interest</h3>
-                <p><span class="label">Product Type:</span> ${bookingData.productType}</p>
+                <p><span class="label">Product Type:</span> ${safeProductType}</p>
               </div>
 
               <div class="info-block">
@@ -85,11 +153,11 @@ const handler = async (req: Request): Promise<Response> => {
                 <p><span class="label">Bonus Tier:</span> ${bonusTierDisplay}</p>
               </div>
 
-              ${bookingData.message ? `
+              ${safeMessage ? `
               <div class="info-block">
                 <h3>Their Message</h3>
                 <div class="message-box">
-                  ${bookingData.message}
+                  ${safeMessage}
                 </div>
               </div>
               ` : ''}
@@ -124,7 +192,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: 'Optima Bookings <onboarding@resend.dev>',
         to: ['karim.2009.gg@gmail.com'],
-        subject: `🎯 New Optima Booking: ${bookingData.name} - ${bookingData.niche || "No Niche"}`,
+        subject: `🎯 New Optima Booking: ${safeName} - ${safeNiche || "No Niche"}`,
         html: emailHtml,
       }),
     });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,30 +9,83 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdminLogin = () => {
-  const [passcode, setPasscode] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Check if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Check if user has admin role
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .eq('role', 'admin')
+          .single();
+        
+        if (roleData) {
+          navigate("/dashboard");
+        }
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('validate-admin', {
-        body: { passcode }
+      // Sign in with Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (error) throw error;
-
-      if (data.valid) {
-        // Store session token securely
-        sessionStorage.setItem('adminToken', data.token);
-        sessionStorage.setItem('adminTokenExpiry', data.expiresAt);
-        toast.success("Login successful!");
-        navigate("/dashboard");
-      } else {
-        toast.error(data.error || "Invalid passcode");
+      if (error) {
+        toast.error(error.message);
+        setLoading(false);
+        return;
       }
+
+      if (!data.user) {
+        toast.error("Login failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      // Check if user has admin role
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .eq('role', 'admin')
+        .single();
+
+      if (roleError || !roleData) {
+        // Try to bootstrap as first admin if no admins exist
+        const { data: bootstrapResult } = await supabase.rpc('bootstrap_first_admin', {
+          admin_user_id: data.user.id
+        });
+
+        if (bootstrapResult === true) {
+          toast.success("You've been set up as the first admin!");
+          navigate("/dashboard");
+        } else {
+          // Sign out since user doesn't have admin access
+          await supabase.auth.signOut();
+          toast.error("You don't have admin access.");
+        }
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Login successful!");
+      navigate("/dashboard");
     } catch (error) {
       console.error('Login error:', error);
       toast.error("Login failed. Please try again.");
@@ -53,22 +106,35 @@ const AdminLogin = () => {
           </div>
           <h1 className="text-3xl font-bold">Admin Access</h1>
           <p className="text-muted-foreground">
-            Enter your passcode to access the dashboard
+            Sign in with your admin credentials
           </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="passcode">Admin Passcode</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="passcode"
-              type="password"
-              placeholder="Enter passcode"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
+              id="email"
+              type="email"
+              placeholder="admin@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="bg-background/50"
               autoFocus
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="bg-background/50"
             />
           </div>
 
@@ -79,7 +145,7 @@ const AdminLogin = () => {
             className="w-full"
             disabled={loading}
           >
-            {loading ? "Validating..." : "Access Dashboard"}
+            {loading ? "Signing in..." : "Access Dashboard"}
           </Button>
         </form>
       </Card>
