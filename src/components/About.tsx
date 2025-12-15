@@ -14,11 +14,7 @@ const About = () => {
               who want to turn attention into revenue without drowning in backend work.
             </p>
             
-            <p>
-              Most creators know exactly what their audience wants, but don't have the time, structure, 
-              or systems to turn that demand into a scalable digital product. Optima exists to remove 
-              that friction entirely.
-            </p>
+            <p>Most creators know exactly what their audience wants, but don't have the time, structure, or systems to turn that demand into a scalable digital product. Zyro exists to remove that friction entirely.</p>
             
             <p>
               My work sits at the intersection of AI-accelerated execution, lean digital product systems, 
