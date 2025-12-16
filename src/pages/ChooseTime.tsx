@@ -39,32 +39,38 @@ const ChooseTime = () => {
     }
 
     const fetchBooking = async () => {
-      const { data, error: fetchError } = await supabase
-        .from("bookings")
-        .select("*")
-        .eq("booking_token", token)
-        .maybeSingle();
+      try {
+        // Fetch booking via secure edge function
+        const { data, error: fetchError } = await supabase.functions.invoke('get-booking-by-token', {
+          body: { token }
+        });
 
-      if (fetchError || !data) {
-        setError("Booking not found. This link may have expired or been used already.");
+        if (fetchError || data?.error) {
+          console.error("Error fetching booking:", fetchError || data?.error);
+          setError("Booking not found. This link may have expired or been used already.");
+          setLoading(false);
+          return;
+        }
+
+        if (data.status === "confirmed") {
+          setError("This booking has already been confirmed.");
+          setLoading(false);
+          return;
+        }
+
+        if (data.requested_date && data.requested_time) {
+          setError("You have already submitted a time preference. Please wait for confirmation.");
+          setLoading(false);
+          return;
+        }
+
+        setBooking(data);
         setLoading(false);
-        return;
-      }
-
-      if (data.status === "confirmed") {
-        setError("This booking has already been confirmed.");
+      } catch (err) {
+        console.error("Error in fetchBooking:", err);
+        setError("An error occurred. Please try again.");
         setLoading(false);
-        return;
       }
-
-      if (data.requested_date && data.requested_time) {
-        setError("You have already submitted a time preference. Please wait for confirmation.");
-        setLoading(false);
-        return;
-      }
-
-      setBooking(data);
-      setLoading(false);
     };
 
     fetchBooking();
@@ -78,23 +84,28 @@ const ChooseTime = () => {
       return;
     }
 
-    const { error: updateError } = await supabase
-      .from("bookings")
-      .update({
-        requested_date: format(selectedDate, "yyyy-MM-dd"),
-        requested_time: selectedTime,
-        status: "pending"
-      })
-      .eq("booking_token", token);
+    try {
+      // Update booking via secure edge function
+      const { data: updateResponse, error: updateError } = await supabase.functions.invoke('update-booking-time', {
+        body: {
+          token,
+          requested_date: format(selectedDate, "yyyy-MM-dd"),
+          requested_time: selectedTime
+        }
+      });
 
-    if (updateError) {
-      console.error("Error updating booking:", updateError);
-      toast.error("Failed to submit your time preference. Please try again.");
-      return;
+      if (updateError || updateResponse?.error) {
+        console.error("Error updating booking:", updateError || updateResponse?.error);
+        toast.error("Failed to submit your time preference. Please try again.");
+        return;
+      }
+
+      setSubmitted(true);
+      toast.success("Your time preference has been submitted!");
+    } catch (err) {
+      console.error("Error in handleSubmit:", err);
+      toast.error("An error occurred. Please try again.");
     }
-
-    setSubmitted(true);
-    toast.success("Your time preference has been submitted!");
   };
 
   if (loading) {

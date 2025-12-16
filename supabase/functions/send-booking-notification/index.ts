@@ -84,7 +84,39 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Admin user authenticated:", user.id);
 
-    const bookingData: BookingNotificationRequest = await req.json();
+    const rawData = await req.json();
+    
+    // Input validation
+    if (!rawData.name || typeof rawData.name !== 'string' || rawData.name.length > 100) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid name' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    if (!rawData.email || typeof rawData.email !== 'string' || rawData.email.length > 254) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid email' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    // Validate optional fields with length limits
+    if (rawData.instagramHandle && (typeof rawData.instagramHandle !== 'string' || rawData.instagramHandle.length > 50)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid Instagram handle' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    if (rawData.message && (typeof rawData.message !== 'string' || rawData.message.length > 2000)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Message too long' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    const bookingData: BookingNotificationRequest = rawData;
     
     console.log("Received booking notification request for:", escapeHtml(bookingData.name));
 

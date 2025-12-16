@@ -38,8 +38,43 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const data: EmailRequest = await req.json();
-    console.log("Sending booking email:", data.type, "to:", data.to);
+    const rawData = await req.json();
+    
+    // Input validation
+    const validTypes = ['booking_received', 'confirmed', 'change_requested'];
+    if (!rawData.type || !validTypes.includes(rawData.type)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid email type' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    // Validate required fields
+    if (!rawData.to || typeof rawData.to !== 'string' || rawData.to.length > 254) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid email address' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    if (!rawData.name || typeof rawData.name !== 'string' || rawData.name.length > 100) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid name' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    // Validate UUID format for bookingToken
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!rawData.bookingToken || !uuidRegex.test(rawData.bookingToken)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid booking token' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    const data: EmailRequest = rawData;
+    console.log("Sending booking email:", data.type, "to admin");
 
     const safeName = escapeHtml(data.name);
     const safeEmail = escapeHtml(data.to);
