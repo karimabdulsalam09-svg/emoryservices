@@ -5,11 +5,20 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, TrendingUp, Clock, Target, Edit, Trash2, Download, RefreshCw, LogOut, Mail } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Users, TrendingUp, Clock, Target, Edit, Trash2, Download, RefreshCw, LogOut, 
+  CheckCircle, XCircle, CalendarIcon, Plus, X 
+} from "lucide-react";
 import { toast } from "sonner";
 import { User, Session } from "@supabase/supabase-js";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface Booking {
   id: string;
@@ -22,15 +31,26 @@ interface Booking {
   message: string | null;
   bonus_tier: string;
   source_page: string;
+  status: "pending" | "change_requested" | "confirmed";
+  booking_token: string;
+  requested_date: string | null;
+  requested_time: string | null;
+  confirmed_date: string | null;
+  confirmed_time: string | null;
+}
+
+interface TimeSlot {
+  date: Date;
+  startTime: string;
+  endTime: string;
 }
 
 interface Stats {
   total: number;
-  today: number;
-  thisWeek: number;
+  pending: number;
+  changeRequested: number;
+  confirmed: number;
   avgFollowers: number;
-  tierBreakdown: Record<string, number>;
-  nicheBreakdown: Record<string, number>;
 }
 
 const Dashboard = () => {
@@ -42,26 +62,33 @@ const Dashboard = () => {
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [stats, setStats] = useState<Stats>({
     total: 0,
-    today: 0,
-    thisWeek: 0,
+    pending: 0,
+    changeRequested: 0,
+    confirmed: 0,
     avgFollowers: 0,
-    tierBreakdown: {},
-    nicheBreakdown: {},
   });
   const [loading, setLoading] = useState(true);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [changeRequestBooking, setChangeRequestBooking] = useState<Booking | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterTier, setFilterTier] = useState<string>("all");
-  const [filterNiche, setFilterNiche] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [newSlotDate, setNewSlotDate] = useState<Date | undefined>();
+  const [newSlotStartTime, setNewSlotStartTime] = useState("");
+  const [newSlotEndTime, setNewSlotEndTime] = useState("");
+
+  const timeOptions = [
+    "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM",
+    "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM",
+    "9:00 PM", "10:00 PM"
+  ];
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Defer admin check to avoid Supabase deadlock
         if (session?.user) {
           setTimeout(() => {
             checkAdminRole(session.user.id);
@@ -73,7 +100,6 @@ const Dashboard = () => {
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -107,19 +133,12 @@ const Dashboard = () => {
     setIsAdmin(true);
     fetchBookings();
     
-    // Set up realtime subscription
     const channel = supabase
       .channel('dashboard-bookings')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bookings'
-        },
-        () => {
-          fetchBookings();
-        }
+        { event: '*', schema: 'public', table: 'bookings' },
+        () => fetchBookings()
       )
       .subscribe();
 
@@ -129,7 +148,6 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // Apply filters
     let filtered = bookings;
 
     if (searchQuery) {
@@ -142,16 +160,12 @@ const Dashboard = () => {
       );
     }
 
-    if (filterTier !== "all") {
-      filtered = filtered.filter((b) => b.bonus_tier === filterTier);
-    }
-
-    if (filterNiche !== "all") {
-      filtered = filtered.filter((b) => b.niche === filterNiche);
+    if (filterStatus !== "all") {
+      filtered = filtered.filter((b) => b.status === filterStatus);
     }
 
     setFilteredBookings(filtered);
-  }, [bookings, searchQuery, filterTier, filterNiche]);
+  }, [bookings, searchQuery, filterStatus]);
 
   const fetchBookings = async () => {
     const { data, error } = await supabase
@@ -161,14 +175,15 @@ const Dashboard = () => {
 
     if (error) {
       console.error('Error fetching bookings:', error);
-      toast.error("Failed to fetch bookings. You may not have access.");
+      toast.error("Failed to fetch bookings.");
       setLoading(false);
       return;
     }
 
-    setBookings(data || []);
-    setFilteredBookings(data || []);
-    calculateStats(data || []);
+    const typedData = (data || []) as Booking[];
+    setBookings(typedData);
+    setFilteredBookings(typedData);
+    calculateStats(typedData);
     setLoading(false);
   };
 
@@ -176,6 +191,122 @@ const Dashboard = () => {
     await supabase.auth.signOut();
     toast.success("Logged out successfully");
     navigate("/admin/login");
+  };
+
+  const handleAcceptBooking = async (booking: Booking) => {
+    if (!booking.requested_date || !booking.requested_time) {
+      toast.error("No time has been requested yet.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from('bookings')
+      .update({
+        status: 'confirmed',
+        confirmed_date: booking.requested_date,
+        confirmed_time: booking.requested_time
+      })
+      .eq('id', booking.id);
+
+    if (error) {
+      toast.error("Failed to confirm booking.");
+      return;
+    }
+
+    // Send confirmation email
+    try {
+      await supabase.functions.invoke('send-booking-email', {
+        body: {
+          type: 'confirmed',
+          to: booking.email,
+          name: booking.name,
+          bookingToken: booking.booking_token,
+          confirmedDate: format(new Date(booking.requested_date), 'EEEE, MMMM d, yyyy'),
+          confirmedTime: booking.requested_time
+        }
+      });
+    } catch (e) {
+      console.error('Failed to send confirmation email:', e);
+    }
+
+    toast.success("Booking confirmed! Confirmation email sent.");
+    fetchBookings();
+  };
+
+  const handleRequestChange = async () => {
+    if (!changeRequestBooking || timeSlots.length === 0) {
+      toast.error("Please add at least one time slot.");
+      return;
+    }
+
+    // Delete existing slots for this booking
+    await supabase
+      .from('admin_time_slots')
+      .delete()
+      .eq('booking_id', changeRequestBooking.id);
+
+    // Insert new time slots
+    const slotsToInsert = timeSlots.map(slot => ({
+      booking_id: changeRequestBooking.id,
+      slot_date: format(slot.date, 'yyyy-MM-dd'),
+      start_time: slot.startTime,
+      end_time: slot.endTime
+    }));
+
+    const { error: slotsError } = await supabase
+      .from('admin_time_slots')
+      .insert(slotsToInsert);
+
+    if (slotsError) {
+      console.error('Error inserting time slots:', slotsError);
+      toast.error("Failed to save time slots.");
+      return;
+    }
+
+    // Update booking status
+    const { error: updateError } = await supabase
+      .from('bookings')
+      .update({ status: 'change_requested' })
+      .eq('id', changeRequestBooking.id);
+
+    if (updateError) {
+      toast.error("Failed to update booking status.");
+      return;
+    }
+
+    // Send change request email
+    try {
+      await supabase.functions.invoke('send-booking-email', {
+        body: {
+          type: 'change_requested',
+          to: changeRequestBooking.email,
+          name: changeRequestBooking.name,
+          bookingToken: changeRequestBooking.booking_token
+        }
+      });
+    } catch (e) {
+      console.error('Failed to send change request email:', e);
+    }
+
+    toast.success("Change requested! Email sent to user.");
+    setChangeRequestBooking(null);
+    setTimeSlots([]);
+    fetchBookings();
+  };
+
+  const addTimeSlot = () => {
+    if (!newSlotDate || !newSlotStartTime || !newSlotEndTime) {
+      toast.error("Please fill in all slot fields.");
+      return;
+    }
+    setTimeSlots([...timeSlots, { date: newSlotDate, startTime: newSlotStartTime, endTime: newSlotEndTime }]);
+    setNewSlotDate(undefined);
+    setNewSlotStartTime("");
+    setNewSlotEndTime("");
+  };
+
+  const removeTimeSlot = (index: number) => {
+    setTimeSlots(timeSlots.filter((_, i) => i !== index));
   };
 
   const handleEdit = (booking: Booking) => {
@@ -197,7 +328,6 @@ const Dashboard = () => {
       .eq('id', editingBooking.id);
 
     if (error) {
-      console.error('Error updating booking:', error);
       toast.error("Failed to update booking");
     } else {
       toast.success("Booking updated successfully");
@@ -215,7 +345,6 @@ const Dashboard = () => {
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting booking:', error);
       toast.error("Failed to delete booking");
     } else {
       toast.success("Booking deleted successfully");
@@ -223,44 +352,18 @@ const Dashboard = () => {
     }
   };
 
-  const handleEmailBooking = async (booking: Booking) => {
-    try {
-      toast.loading("Sending email...");
-      
-      const { data, error } = await supabase.functions.invoke('send-booking-notification', {
-        body: {
-          name: booking.name,
-          email: booking.email,
-          instagramHandle: booking.instagram_handle,
-          niche: booking.niche,
-          followers: booking.followers?.toString() || '0',
-          message: booking.message,
-          bonusTier: booking.bonus_tier,
-        }
-      });
-
-      if (error) throw error;
-
-      toast.dismiss();
-      toast.success("Email sent successfully to karim.2009.gg@gmail.com");
-    } catch (error) {
-      console.error('Error sending email:', error);
-      toast.dismiss();
-      toast.error("Failed to send email");
-    }
-  };
-
   const handleExportCSV = () => {
-    const headers = ['Date', 'Name', 'Email', 'Instagram', 'Followers', 'Niche', 'Bonus Tier', 'Message'];
+    const headers = ['Date', 'Name', 'Email', 'Instagram', 'Status', 'Requested Date', 'Requested Time', 'Confirmed Date', 'Confirmed Time'];
     const rows = filteredBookings.map(b => [
       new Date(b.created_at).toLocaleString(),
       b.name,
       b.email,
       b.instagram_handle || '',
-      b.followers || '',
-      b.niche || '',
-      b.bonus_tier,
-      b.message || ''
+      b.status,
+      b.requested_date || '',
+      b.requested_time || '',
+      b.confirmed_date || '',
+      b.confirmed_time || ''
     ]);
 
     const csv = [headers, ...rows].map(row => 
@@ -274,60 +377,40 @@ const Dashboard = () => {
     a.download = `bookings-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("CSV exported successfully");
+    toast.success("CSV exported");
   };
 
   const handleResetFilters = () => {
     setSearchQuery("");
-    setFilterTier("all");
-    setFilterNiche("all");
-    toast.success("Filters reset");
+    setFilterStatus("all");
   };
 
   const calculateStats = (data: Booking[]) => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    const today = data.filter(b => new Date(b.created_at) >= todayStart).length;
-    const thisWeek = data.filter(b => new Date(b.created_at) >= weekStart).length;
-
     const withFollowers = data.filter(b => b.followers !== null);
     const avgFollowers = withFollowers.length > 0
       ? Math.round(withFollowers.reduce((sum, b) => sum + (b.followers || 0), 0) / withFollowers.length)
       : 0;
 
-    const tierBreakdown = data.reduce((acc, b) => {
-      acc[b.bonus_tier] = (acc[b.bonus_tier] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const nicheBreakdown = data.reduce((acc, b) => {
-      if (b.niche) {
-        acc[b.niche] = (acc[b.niche] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<string, number>);
-
     setStats({
       total: data.length,
-      today,
-      thisWeek,
+      pending: data.filter(b => b.status === 'pending').length,
+      changeRequested: data.filter(b => b.status === 'change_requested').length,
+      confirmed: data.filter(b => b.status === 'confirmed').length,
       avgFollowers,
-      tierBreakdown,
-      nicheBreakdown,
     });
   };
 
-  const getTierLabel = (tier: string) => {
-    const labels: Record<string, string> = {
-      '0-10': '🏆 75/25 Split',
-      '10-15': '⚡ Priority Queue',
-      '15-20': '✨ Personalized Audit',
-      '20-37': '📄 Blueprint Draft',
-      'none': 'No Bonus',
-    };
-    return labels[tier] || tier;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="outline" className="bg-yellow-500/20 text-yellow-500 border-yellow-500/50">Pending</Badge>;
+      case 'change_requested':
+        return <Badge variant="outline" className="bg-orange-500/20 text-orange-500 border-orange-500/50">Change Requested</Badge>;
+      case 'confirmed':
+        return <Badge variant="outline" className="bg-green-500/20 text-green-500 border-green-500/50">Confirmed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   if (loading) {
@@ -346,20 +429,14 @@ const Dashboard = () => {
     );
   }
 
-  const uniqueNiches = Array.from(new Set(bookings.map(b => b.niche).filter(Boolean)));
-
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-gradient-red-orange">
-              Analytics Dashboard
-            </h1>
-            <p className="text-muted-foreground">
-              Real-time insights into your booking performance
-            </p>
+            <h1 className="text-4xl font-bold text-gradient-red-orange">Booking Dashboard</h1>
+            <p className="text-muted-foreground">Manage all booking requests and confirmations</p>
           </div>
           <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="w-4 h-4" />
@@ -367,9 +444,44 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        {/* Filters & Actions */}
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="elite-card p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Total Bookings</p>
+              <Users className="w-5 h-5 text-primary" />
+            </div>
+            <p className="text-3xl font-bold">{stats.total}</p>
+          </Card>
+
+          <Card className="elite-card p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Pending</p>
+              <Clock className="w-5 h-5 text-yellow-500" />
+            </div>
+            <p className="text-3xl font-bold">{stats.pending}</p>
+          </Card>
+
+          <Card className="elite-card p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Confirmed</p>
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            </div>
+            <p className="text-3xl font-bold">{stats.confirmed}</p>
+          </Card>
+
+          <Card className="elite-card p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Change Requested</p>
+              <XCircle className="w-5 h-5 text-orange-500" />
+            </div>
+            <p className="text-3xl font-bold">{stats.changeRequested}</p>
+          </Card>
+        </div>
+
+        {/* Filters */}
         <Card className="elite-card p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
               placeholder="Search by name, email, or handle..."
               value={searchQuery}
@@ -377,29 +489,15 @@ const Dashboard = () => {
               className="bg-background/50"
             />
             
-            <Select value={filterTier} onValueChange={setFilterTier}>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="bg-background/50">
-                <SelectValue placeholder="Filter by tier" />
+                <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tiers</SelectItem>
-                <SelectItem value="0-10">🏆 75/25 Split</SelectItem>
-                <SelectItem value="10-15">⚡ Priority Queue</SelectItem>
-                <SelectItem value="15-20">✨ Personalized Audit</SelectItem>
-                <SelectItem value="20-37">📄 Blueprint Draft</SelectItem>
-                <SelectItem value="none">No Bonus</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filterNiche} onValueChange={setFilterNiche}>
-              <SelectTrigger className="bg-background/50">
-                <SelectValue placeholder="Filter by niche" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Niches</SelectItem>
-                {uniqueNiches.map(niche => (
-                  <SelectItem key={niche} value={niche!}>{niche}</SelectItem>
-                ))}
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="change_requested">Change Requested</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
               </SelectContent>
             </Select>
 
@@ -416,121 +514,54 @@ const Dashboard = () => {
           </div>
         </Card>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="elite-card p-6 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Total Bookings</p>
-              <Users className="w-5 h-5 text-primary" />
-            </div>
-            <p className="text-3xl font-bold">{stats.total}</p>
-          </Card>
-
-          <Card className="elite-card p-6 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Today</p>
-              <TrendingUp className="w-5 h-5 text-primary" />
-            </div>
-            <p className="text-3xl font-bold">{stats.today}</p>
-          </Card>
-
-          <Card className="elite-card p-6 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">This Week</p>
-              <Clock className="w-5 h-5 text-primary" />
-            </div>
-            <p className="text-3xl font-bold">{stats.thisWeek}</p>
-          </Card>
-
-          <Card className="elite-card p-6 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Avg Followers</p>
-              <Target className="w-5 h-5 text-primary" />
-            </div>
-            <p className="text-3xl font-bold">
-              {stats.avgFollowers > 0 ? stats.avgFollowers.toLocaleString() : 'N/A'}
-            </p>
-          </Card>
-        </div>
-
-        {/* Bonus Tier Breakdown */}
+        {/* Bookings Table */}
         <Card className="elite-card p-6 space-y-4">
-          <h2 className="text-2xl font-bold">Bookings by Bonus Tier</h2>
-          <div className="space-y-3">
-            {Object.entries(stats.tierBreakdown).map(([tier, count]) => {
-              const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
-              return (
-                <div key={tier} className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{getTierLabel(tier)}</span>
-                    <span className="text-muted-foreground">
-                      {count} ({percentage.toFixed(1)}%)
-                    </span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* Top Niches */}
-        {Object.keys(stats.nicheBreakdown).length > 0 && (
-          <Card className="elite-card p-6 space-y-4">
-            <h2 className="text-2xl font-bold">Top Niches</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {Object.entries(stats.nicheBreakdown)
-                .sort(([, a], [, b]) => b - a)
-                .slice(0, 8)
-                .map(([niche, count]) => (
-                  <div
-                    key={niche}
-                    className="bg-background/50 rounded-lg p-4 border border-border/50"
-                  >
-                    <p className="font-medium truncate">{niche}</p>
-                    <p className="text-2xl font-bold text-primary">{count}</p>
-                  </div>
-                ))}
-            </div>
-          </Card>
-        )}
-
-        {/* All Bookings Table */}
-        <Card className="elite-card p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">All Bookings ({filteredBookings.length})</h2>
-          </div>
+          <h2 className="text-2xl font-bold">All Bookings ({filteredBookings.length})</h2>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {filteredBookings.map((booking) => (
               <div
                 key={booking.id}
-                className="p-4 bg-background/50 rounded-lg border border-border/50 space-y-3"
+                className="p-4 bg-background/50 rounded-lg border border-border/50 space-y-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-1">
-                    <p className="font-bold text-lg">{booking.name}</p>
+                    <div className="flex items-center gap-3">
+                      <p className="font-bold text-lg">{booking.name}</p>
+                      {getStatusBadge(booking.status)}
+                    </div>
                     <p className="text-sm text-muted-foreground">{booking.email}</p>
                     {booking.instagram_handle && (
                       <p className="text-sm text-muted-foreground">@{booking.instagram_handle}</p>
                     )}
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEmailBooking(booking)}
-                      className="gap-2"
-                    >
-                      <Mail className="w-4 h-4" />
-                      Email
-                    </Button>
+                  <div className="flex gap-2 flex-wrap">
+                    {booking.status === 'pending' && booking.requested_date && booking.requested_time && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAcceptBooking(booking)}
+                        className="gap-2 text-green-500 hover:text-green-600"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Accept
+                      </Button>
+                    )}
+                    {(booking.status === 'pending' || booking.status === 'change_requested') && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setChangeRequestBooking(booking);
+                          setTimeSlots([]);
+                        }}
+                        className="gap-2 text-orange-500 hover:text-orange-600"
+                      >
+                        <CalendarIcon className="w-4 h-4" />
+                        Request Change
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -552,7 +583,7 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Followers</p>
                     <p className="font-medium">
@@ -564,11 +595,23 @@ const Dashboard = () => {
                     <p className="font-medium">{booking.niche || 'N/A'}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Bonus Tier</p>
-                    <p className="font-medium">{getTierLabel(booking.bonus_tier)}</p>
+                    <p className="text-muted-foreground">Requested Time</p>
+                    <p className="font-medium">
+                      {booking.requested_date && booking.requested_time 
+                        ? `${format(new Date(booking.requested_date), 'MMM d')} @ ${booking.requested_time}`
+                        : 'Not selected'}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Date</p>
+                    <p className="text-muted-foreground">Confirmed Time</p>
+                    <p className="font-medium">
+                      {booking.confirmed_date && booking.confirmed_time 
+                        ? `${format(new Date(booking.confirmed_date), 'MMM d')} @ ${booking.confirmed_time}`
+                        : '—'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Submitted</p>
                     <p className="font-medium">
                       {new Date(booking.created_at).toLocaleDateString()}
                     </p>
@@ -601,7 +644,7 @@ const Dashboard = () => {
             {editingBooking && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Name</label>
+                  <Label>Name</Label>
                   <Input
                     value={editingBooking.name}
                     onChange={(e) =>
@@ -610,7 +653,7 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Email</label>
+                  <Label>Email</Label>
                   <Input
                     value={editingBooking.email}
                     onChange={(e) =>
@@ -619,7 +662,7 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Instagram Handle</label>
+                  <Label>Instagram Handle</Label>
                   <Input
                     value={editingBooking.instagram_handle || ''}
                     onChange={(e) =>
@@ -631,7 +674,7 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Niche</label>
+                  <Label>Niche</Label>
                   <Input
                     value={editingBooking.niche || ''}
                     onChange={(e) =>
@@ -643,7 +686,7 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Message</label>
+                  <Label>Message</Label>
                   <Textarea
                     value={editingBooking.message || ''}
                     onChange={(e) =>
@@ -659,6 +702,106 @@ const Dashboard = () => {
                     Cancel
                   </Button>
                   <Button onClick={handleSaveEdit}>Save Changes</Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Change Request Dialog */}
+        <Dialog open={!!changeRequestBooking} onOpenChange={() => setChangeRequestBooking(null)}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Request Time Change</DialogTitle>
+            </DialogHeader>
+            {changeRequestBooking && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Add available time slots for <strong>{changeRequestBooking.name}</strong> to choose from.
+                  You can add up to 7 days in advance.
+                </p>
+
+                {/* Add Time Slot Form */}
+                <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal text-sm",
+                              !newSlotDate && "text-muted-foreground"
+                            )}
+                          >
+                            {newSlotDate ? format(newSlotDate, "MMM d") : "Select"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={newSlotDate}
+                            onSelect={setNewSlotDate}
+                            disabled={(date) => date < new Date() || date > new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Start Time</Label>
+                      <Select onValueChange={setNewSlotStartTime} value={newSlotStartTime}>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Start" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timeOptions.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">End Time</Label>
+                      <Select onValueChange={setNewSlotEndTime} value={newSlotEndTime}>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="End" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timeOptions.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button onClick={addTimeSlot} size="sm" className="w-full gap-2">
+                    <Plus className="w-4 h-4" /> Add Slot
+                  </Button>
+                </div>
+
+                {/* Current Time Slots */}
+                {timeSlots.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Added Time Slots:</Label>
+                    {timeSlots.map((slot, i) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-background rounded border">
+                        <span className="text-sm">
+                          {format(slot.date, "EEE, MMM d")} — {slot.startTime} to {slot.endTime}
+                        </span>
+                        <Button variant="ghost" size="sm" onClick={() => removeTimeSlot(i)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setChangeRequestBooking(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleRequestChange} disabled={timeSlots.length === 0}>
+                    Send Change Request
+                  </Button>
                 </div>
               </div>
             )}

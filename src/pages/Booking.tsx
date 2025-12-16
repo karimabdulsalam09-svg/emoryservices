@@ -65,8 +65,8 @@ const Booking = () => {
       return null;
     };
     
-    // Save to database using validated data
-    const { error } = await supabase.from('bookings').insert({
+    // Save to database using validated data - status defaults to 'pending'
+    const { data: insertedBooking, error } = await supabase.from('bookings').insert({
       name: validatedData.name,
       email: validatedData.email,
       instagram_handle: validatedData.socialHandle,
@@ -75,15 +75,30 @@ const Booking = () => {
       message: validatedData.holdback || null,
       bonus_tier: bonusTier,
       source_page: window.location.pathname
-    });
+    }).select('booking_token').single();
     
-    if (error) {
+    if (error || !insertedBooking) {
       console.error('Error saving booking:', error);
       toast.error("There was an error submitting your booking. Please try again.");
       return;
     }
 
-    // Send email notification (non-blocking - booking succeeds even if email fails)
+    // Send time selection email (non-blocking)
+    try {
+      await supabase.functions.invoke('send-booking-email', {
+        body: {
+          type: 'time_selection',
+          to: validatedData.email,
+          name: validatedData.name,
+          bookingToken: insertedBooking.booking_token,
+        }
+      });
+      console.log('Time selection email sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send time selection email:', emailError);
+    }
+    
+    // Also send admin notification (non-blocking)
     try {
       await supabase.functions.invoke('send-booking-notification', {
         body: {
@@ -97,10 +112,8 @@ const Booking = () => {
           bonusTier: bonusTier,
         }
       });
-      console.log('Booking notification sent successfully');
     } catch (emailError) {
-      console.error('Failed to send booking notification email:', emailError);
-      // Don't block the user experience - booking already succeeded
+      console.error('Failed to send admin notification:', emailError);
     }
     
     setSubmitted(true);
@@ -122,7 +135,10 @@ const Booking = () => {
             Thank You!
           </h1>
           <p className="text-xl text-muted-foreground max-w-xl mx-auto">
-            We've received your booking request. We'll review your information and reach out within 24 hours to schedule your call.
+            Thanks — your request has been submitted. You'll receive an email shortly to select a preferred date and time.
+          </p>
+          <p className="text-muted-foreground">
+            Please check your inbox (and spam folder) for the next steps.
           </p>
           <Button 
             variant="elite-outline" 

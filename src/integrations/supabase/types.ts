@@ -14,9 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_time_slots: {
+        Row: {
+          booking_id: string
+          created_at: string
+          end_time: string
+          id: string
+          slot_date: string
+          start_time: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          end_time: string
+          id?: string
+          slot_date: string
+          start_time: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          slot_date?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_time_slots_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           bonus_tier: string
+          booking_token: string
+          confirmed_date: string | null
+          confirmed_time: string | null
           created_at: string
           email: string
           followers: number | null
@@ -25,10 +63,16 @@ export type Database = {
           message: string | null
           name: string
           niche: string | null
+          requested_date: string | null
+          requested_time: string | null
           source_page: string
+          status: Database["public"]["Enums"]["booking_status"]
         }
         Insert: {
           bonus_tier: string
+          booking_token?: string
+          confirmed_date?: string | null
+          confirmed_time?: string | null
           created_at?: string
           email: string
           followers?: number | null
@@ -37,10 +81,16 @@ export type Database = {
           message?: string | null
           name: string
           niche?: string | null
+          requested_date?: string | null
+          requested_time?: string | null
           source_page: string
+          status?: Database["public"]["Enums"]["booking_status"]
         }
         Update: {
           bonus_tier?: string
+          booking_token?: string
+          confirmed_date?: string | null
+          confirmed_time?: string | null
           created_at?: string
           email?: string
           followers?: number | null
@@ -49,7 +99,10 @@ export type Database = {
           message?: string | null
           name?: string
           niche?: string | null
+          requested_date?: string | null
+          requested_time?: string | null
           source_page?: string
+          status?: Database["public"]["Enums"]["booking_status"]
         }
         Relationships: []
       }
@@ -93,6 +146,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      booking_status: "pending" | "change_requested" | "confirmed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -221,6 +275,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      booking_status: ["pending", "change_requested", "confirmed"],
     },
   },
 } as const
