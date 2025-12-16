@@ -15,27 +15,27 @@ const metrics = [
 
 const EconomicMetrics = () => {
   return (
-    <section className="py-32 relative">
+    <section className="py-16 md:py-32 relative">
       <div className="absolute inset-0 gradient-radial-red opacity-10" />
       
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <div className="text-center mb-8 md:mb-16">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4">
             The <span className="text-gradient-orange-blue">Market</span> Opportunity
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-4 md:gap-8 max-w-6xl mx-auto">
           {metrics.map((metric, index) => (
             <div
               key={index}
-              className="elite-card rounded-xl p-8 text-center animate-fade-up"
+              className="elite-card rounded-xl p-4 md:p-8 text-center animate-fade-up"
               style={{ animationDelay: `${index * 0.15}s` }}
             >
-              <div className="text-3xl md:text-4xl font-bold text-gradient-red-orange mb-4 leading-tight">
+              <div className="text-lg md:text-3xl lg:text-4xl font-bold text-gradient-red-orange mb-2 md:mb-4 leading-tight">
                 {metric.stat}
               </div>
-              <div className="text-sm text-muted-foreground font-semibold">
+              <div className="text-xs md:text-sm text-muted-foreground font-semibold">
                 {metric.source}
               </div>
             </div>
