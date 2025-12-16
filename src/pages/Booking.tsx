@@ -105,7 +105,7 @@ const Booking = () => {
       return;
     }
 
-    // Send confirmation email to user
+    // Send booking notification to admin
     try {
       await supabase.functions.invoke('send-booking-email', {
         body: {
@@ -117,27 +117,10 @@ const Booking = () => {
           requestedTime: selectedTime,
         }
       });
-      console.log('Confirmation email sent successfully');
+      console.log('Booking notification sent successfully');
     } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-    }
-    
-    // Also send admin notification
-    try {
-      await supabase.functions.invoke('send-booking-notification', {
-        body: {
-          name: validatedData.name,
-          email: validatedData.email,
-          instagramHandle: validatedData.socialHandle,
-          niche: validatedData.niche || '',
-          followers: validatedData.audienceSize || '',
-          productType: validatedData.productType || '',
-          message: validatedData.holdback || '',
-          bonusTier: bonusTier,
-        }
-      });
-    } catch (emailError) {
-      console.error('Failed to send admin notification:', emailError);
+      console.error('Failed to send booking notification:', emailError);
+      // Don't block the booking - email is non-critical
     }
     
     setSubmitted(true);
