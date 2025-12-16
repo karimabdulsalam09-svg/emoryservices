@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SITE_URL = Deno.env.get("SITE_URL") || "https://nwdkoqshjndmcixqmydd.lovableproject.com";
+const ADMIN_EMAIL = "karim.2009.gg@gmail.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,7 +10,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: "time_selection" | "confirmed" | "change_requested" | "booking_received";
+  type: "booking_received" | "confirmed" | "change_requested";
   to: string;
   name: string;
   bookingToken: string;
@@ -41,6 +42,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending booking email:", data.type, "to:", data.to);
 
     const safeName = escapeHtml(data.name);
+    const safeEmail = escapeHtml(data.to);
     let subject = "";
     let html = "";
 
@@ -54,11 +56,16 @@ const handler = async (req: Request): Promise<Response> => {
         .cta-button { display: inline-block; background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; margin: 20px 0; }
         .info-box { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff4500; }
         .footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
+        .customer-info { background: #e8f4fd; padding: 15px; border-radius: 6px; margin: 15px 0; }
       </style>
     `;
 
+    // Since Resend requires domain verification to send to external emails,
+    // we send all notifications to the admin with customer details included
+    // The admin can then manually forward or contact the customer
+
     if (data.type === "booking_received") {
-      subject = `✅ Booking Request Received — Optima`;
+      subject = `📥 New Booking: ${safeName} - ${escapeHtml(data.requestedDate)} @ ${escapeHtml(data.requestedTime)}`;
       html = `
         <!DOCTYPE html>
         <html>
@@ -66,65 +73,41 @@ const handler = async (req: Request): Promise<Response> => {
           <body>
             <div class="container">
               <div class="header">
-                <h1>✅ Booking Request Received!</h1>
+                <h1>📥 New Booking Request</h1>
               </div>
               <div class="content">
-                <p>Hi ${safeName},</p>
-                <p>Thanks for submitting your booking request! Here are the details:</p>
+                <p><strong>A new booking has been submitted!</strong></p>
+                
+                <div class="customer-info">
+                  <p style="margin: 0;"><strong>Customer:</strong> ${safeName}</p>
+                  <p style="margin: 5px 0;"><strong>Email:</strong> ${safeEmail}</p>
+                </div>
+                
                 <div class="info-box">
                   <p style="margin: 0;"><strong>📅 Requested Date:</strong> ${escapeHtml(data.requestedDate)}</p>
                   <p style="margin: 10px 0 0 0;"><strong>🕐 Requested Time:</strong> ${escapeHtml(data.requestedTime)}</p>
                 </div>
-                <p><strong>What happens next?</strong></p>
+                
+                <p><strong>Next Steps:</strong></p>
                 <ul>
-                  <li>We'll review your request within 24 hours</li>
-                  <li>You'll receive a confirmation email once your call is approved</li>
-                  <li>If we need to change the time, we'll send you alternative options</li>
+                  <li>Review the booking in your dashboard</li>
+                  <li>Accept or request a time change</li>
+                  <li>The customer will be notified automatically</li>
                 </ul>
-                <p>If you have any questions, just reply to this email.</p>
-                <p>Best,<br>The Optima Team</p>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                  <a href="${SITE_URL}/dashboard" class="cta-button">View Dashboard →</a>
+                </div>
               </div>
               <div class="footer">
-                Optima • Creator Operations Partner
-              </div>
-            </div>
-          </body>
-        </html>
-      `;
-    } else if (data.type === "time_selection") {
-      subject = `Action Required: Select Your Call Time — Optima`;
-      html = `
-        <!DOCTYPE html>
-        <html>
-          <head>${baseStyles}</head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>📅 Select Your Call Time</h1>
-              </div>
-              <div class="content">
-                <p>Hi ${safeName},</p>
-                <p>Thanks for submitting your booking request! Your call is <strong>not confirmed yet</strong>.</p>
-                <p>To proceed, please select your preferred date and time by clicking the button below:</p>
-                <div style="text-align: center;">
-                  <a href="${SITE_URL}/choose-time?token=${data.bookingToken}" class="cta-button">Choose Your Time →</a>
-                </div>
-                <div class="info-box">
-                  <p style="margin: 0;"><strong>What happens next?</strong></p>
-                  <p style="margin: 10px 0 0 0;">Once you select a time, we'll review and confirm your booking within 24 hours.</p>
-                </div>
-                <p>If you have any questions, just reply to this email.</p>
-                <p>Best,<br>The Optima Team</p>
-              </div>
-              <div class="footer">
-                Optima • Creator Operations Partner
+                Optima Booking System
               </div>
             </div>
           </body>
         </html>
       `;
     } else if (data.type === "confirmed") {
-      subject = `✅ Your Call is Confirmed — Optima`;
+      subject = `✅ Booking Confirmed: ${safeName} - ${escapeHtml(data.confirmedDate)} @ ${escapeHtml(data.confirmedTime)}`;
       html = `
         <!DOCTYPE html>
         <html>
@@ -132,34 +115,42 @@ const handler = async (req: Request): Promise<Response> => {
           <body>
             <div class="container">
               <div class="header">
-                <h1>✅ Call Confirmed!</h1>
+                <h1>✅ Booking Confirmed!</h1>
               </div>
               <div class="content">
-                <p>Hi ${safeName},</p>
-                <p>Great news! Your call has been <strong>confirmed</strong>.</p>
-                <div class="info-box">
-                  <p style="margin: 0;"><strong>📅 Date:</strong> ${escapeHtml(data.confirmedDate)}</p>
-                  <p style="margin: 10px 0 0 0;"><strong>🕐 Time:</strong> ${escapeHtml(data.confirmedTime)}</p>
+                <p><strong>You've confirmed a booking!</strong></p>
+                
+                <div class="customer-info">
+                  <p style="margin: 0;"><strong>Customer:</strong> ${safeName}</p>
+                  <p style="margin: 5px 0;"><strong>Email:</strong> ${safeEmail}</p>
                 </div>
-                <p>You'll receive a calendar invite shortly with the meeting link.</p>
-                <p>Please make sure to:</p>
+                
+                <div class="info-box">
+                  <p style="margin: 0;"><strong>📅 Confirmed Date:</strong> ${escapeHtml(data.confirmedDate)}</p>
+                  <p style="margin: 10px 0 0 0;"><strong>🕐 Confirmed Time:</strong> ${escapeHtml(data.confirmedTime)}</p>
+                </div>
+                
+                <p><strong>Action Required:</strong></p>
                 <ul>
-                  <li>Be in a quiet place with good internet</li>
-                  <li>Have your content/niche ideas ready to discuss</li>
-                  <li>Come with questions about your digital product</li>
+                  <li>Send a calendar invite to: <strong>${safeEmail}</strong></li>
+                  <li>Include your meeting link (Zoom/Google Meet)</li>
+                  <li>Prepare for the call based on their submission</li>
                 </ul>
-                <p>Looking forward to speaking with you!</p>
-                <p>Best,<br>The Optima Team</p>
+                
+                <p style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                  <strong>Note:</strong> Please manually email ${safeEmail} to confirm their call. 
+                  (To enable automatic customer emails, verify a domain at resend.com/domains)
+                </p>
               </div>
               <div class="footer">
-                Optima • Creator Operations Partner
+                Optima Booking System
               </div>
             </div>
           </body>
         </html>
       `;
     } else if (data.type === "change_requested") {
-      subject = `📅 Time Change Needed — Optima`;
+      subject = `📅 Time Change Requested: ${safeName}`;
       html = `
         <!DOCTYPE html>
         <html>
@@ -167,23 +158,39 @@ const handler = async (req: Request): Promise<Response> => {
           <body>
             <div class="container">
               <div class="header">
-                <h1>📅 Time Change Needed</h1>
+                <h1>📅 Time Change Requested</h1>
               </div>
               <div class="content">
-                <p>Hi ${safeName},</p>
-                <p>Unfortunately, your originally requested time is <strong>not available</strong>.</p>
-                <p>We've opened up some alternative time slots for you. Please select a new time that works:</p>
-                <div style="text-align: center;">
-                  <a href="${SITE_URL}/reschedule?token=${data.bookingToken}" class="cta-button">Select New Time →</a>
+                <p><strong>You've requested a time change!</strong></p>
+                
+                <div class="customer-info">
+                  <p style="margin: 0;"><strong>Customer:</strong> ${safeName}</p>
+                  <p style="margin: 5px 0;"><strong>Email:</strong> ${safeEmail}</p>
                 </div>
+                
+                <p>The customer needs to select a new time from the slots you provided.</p>
+                
                 <div class="info-box">
-                  <p style="margin: 0;">Don't worry — we're still excited to chat with you. Just pick a new slot and we'll get you confirmed ASAP.</p>
+                  <p style="margin: 0;"><strong>Reschedule Link for Customer:</strong></p>
+                  <p style="margin: 10px 0 0 0; word-break: break-all;">
+                    <a href="${SITE_URL}/reschedule?token=${data.bookingToken}">${SITE_URL}/reschedule?token=${data.bookingToken}</a>
+                  </p>
                 </div>
-                <p>If you have any questions, just reply to this email.</p>
-                <p>Best,<br>The Optima Team</p>
+                
+                <p><strong>Action Required:</strong></p>
+                <ul>
+                  <li>Copy the link above</li>
+                  <li>Email it to: <strong>${safeEmail}</strong></li>
+                  <li>Ask them to select a new time</li>
+                </ul>
+                
+                <p style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                  <strong>Note:</strong> Please manually send this link to the customer. 
+                  (To enable automatic customer emails, verify a domain at resend.com/domains)
+                </p>
               </div>
               <div class="footer">
-                Optima • Creator Operations Partner
+                Optima Booking System
               </div>
             </div>
           </body>
@@ -191,6 +198,7 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }
 
+    // Always send to admin email (guaranteed to work with Resend free tier)
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -199,7 +207,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: 'Optima <onboarding@resend.dev>',
-        to: [data.to],
+        to: [ADMIN_EMAIL],
         subject,
         html,
       }),
@@ -212,7 +220,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Resend API error: ${JSON.stringify(emailResult)}`);
     }
 
-    console.log("Email sent successfully:", emailResult);
+    console.log("Admin notification email sent successfully:", emailResult);
 
     return new Response(
       JSON.stringify({ success: true, data: emailResult }),
