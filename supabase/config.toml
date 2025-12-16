@@ -5,3 +5,12 @@ verify_jwt = false
 
 [functions.send-booking-email]
 verify_jwt = false
+
+[functions.get-booking-by-token]
+verify_jwt = false
+
+[functions.update-booking-time]
+verify_jwt = false
+
+[functions.get-time-slots]
+verify_jwt = false

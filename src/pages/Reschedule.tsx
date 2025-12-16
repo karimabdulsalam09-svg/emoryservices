@@ -64,56 +64,58 @@ const Reschedule = () => {
     }
 
     const fetchBookingAndSlots = async () => {
-      // Fetch booking
-      const { data: bookingData, error: bookingError } = await supabase
-        .from("bookings")
-        .select("*")
-        .eq("booking_token", token)
-        .maybeSingle();
+      try {
+        // Fetch booking via secure edge function
+        const { data: bookingResponse, error: bookingError } = await supabase.functions.invoke('get-booking-by-token', {
+          body: { token }
+        });
 
-      if (bookingError || !bookingData) {
-        setError("Booking not found. This link may have expired.");
+        if (bookingError || bookingResponse?.error) {
+          console.error("Error fetching booking:", bookingError || bookingResponse?.error);
+          setError("Booking not found. This link may have expired.");
+          setLoading(false);
+          return;
+        }
+
+        if (bookingResponse.status === "confirmed") {
+          setError("This booking has already been confirmed.");
+          setLoading(false);
+          return;
+        }
+
+        if (bookingResponse.status !== "change_requested") {
+          setError("No reschedule request found for this booking.");
+          setLoading(false);
+          return;
+        }
+
+        setBooking(bookingResponse);
+
+        // Fetch available time slots via secure edge function
+        const { data: slotsResponse, error: slotsError } = await supabase.functions.invoke('get-time-slots', {
+          body: { booking_id: bookingResponse.id, token }
+        });
+
+        if (slotsError || slotsResponse?.error) {
+          console.error("Error fetching time slots:", slotsError || slotsResponse?.error);
+          setError("Failed to load available time slots.");
+          setLoading(false);
+          return;
+        }
+
+        if (!slotsResponse || slotsResponse.length === 0) {
+          setError("No available time slots. Please contact support.");
+          setLoading(false);
+          return;
+        }
+
+        setTimeSlots(slotsResponse);
         setLoading(false);
-        return;
-      }
-
-      if (bookingData.status === "confirmed") {
-        setError("This booking has already been confirmed.");
+      } catch (err) {
+        console.error("Error in fetchBookingAndSlots:", err);
+        setError("An error occurred. Please try again.");
         setLoading(false);
-        return;
       }
-
-      if (bookingData.status !== "change_requested") {
-        setError("No reschedule request found for this booking.");
-        setLoading(false);
-        return;
-      }
-
-      setBooking(bookingData);
-
-      // Fetch available time slots
-      const { data: slotsData, error: slotsError } = await supabase
-        .from("admin_time_slots")
-        .select("*")
-        .eq("booking_id", bookingData.id)
-        .gte("slot_date", format(new Date(), "yyyy-MM-dd"))
-        .order("slot_date", { ascending: true });
-
-      if (slotsError) {
-        console.error("Error fetching time slots:", slotsError);
-        setError("Failed to load available time slots.");
-        setLoading(false);
-        return;
-      }
-
-      if (!slotsData || slotsData.length === 0) {
-        setError("No available time slots. Please contact support.");
-        setLoading(false);
-        return;
-      }
-
-      setTimeSlots(slotsData);
-      setLoading(false);
     };
 
     fetchBookingAndSlots();
@@ -133,23 +135,28 @@ const Reschedule = () => {
       return;
     }
 
-    const { error: updateError } = await supabase
-      .from("bookings")
-      .update({
-        requested_date: slot.slot_date,
-        requested_time: selectedTime,
-        status: "pending"
-      })
-      .eq("booking_token", token);
+    try {
+      // Update booking via secure edge function
+      const { data: updateResponse, error: updateError } = await supabase.functions.invoke('update-booking-time', {
+        body: { 
+          token,
+          requested_date: slot.slot_date,
+          requested_time: selectedTime
+        }
+      });
 
-    if (updateError) {
-      console.error("Error updating booking:", updateError);
-      toast.error("Failed to submit your new time. Please try again.");
-      return;
+      if (updateError || updateResponse?.error) {
+        console.error("Error updating booking:", updateError || updateResponse?.error);
+        toast.error("Failed to submit your new time. Please try again.");
+        return;
+      }
+
+      setSubmitted(true);
+      toast.success("Your new time preference has been submitted!");
+    } catch (err) {
+      console.error("Error in handleSubmit:", err);
+      toast.error("An error occurred. Please try again.");
     }
-
-    setSubmitted(true);
-    toast.success("Your new time preference has been submitted!");
   };
 
   const selectedSlotData = timeSlots.find(s => s.id === selectedSlot);
