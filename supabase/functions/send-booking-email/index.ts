@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: "time_selection" | "confirmed" | "change_requested";
+  type: "time_selection" | "confirmed" | "change_requested" | "booking_received";
   to: string;
   name: string;
   bookingToken: string;
@@ -57,7 +57,41 @@ const handler = async (req: Request): Promise<Response> => {
       </style>
     `;
 
-    if (data.type === "time_selection") {
+    if (data.type === "booking_received") {
+      subject = `✅ Booking Request Received — Optima`;
+      html = `
+        <!DOCTYPE html>
+        <html>
+          <head>${baseStyles}</head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>✅ Booking Request Received!</h1>
+              </div>
+              <div class="content">
+                <p>Hi ${safeName},</p>
+                <p>Thanks for submitting your booking request! Here are the details:</p>
+                <div class="info-box">
+                  <p style="margin: 0;"><strong>📅 Requested Date:</strong> ${escapeHtml(data.requestedDate)}</p>
+                  <p style="margin: 10px 0 0 0;"><strong>🕐 Requested Time:</strong> ${escapeHtml(data.requestedTime)}</p>
+                </div>
+                <p><strong>What happens next?</strong></p>
+                <ul>
+                  <li>We'll review your request within 24 hours</li>
+                  <li>You'll receive a confirmation email once your call is approved</li>
+                  <li>If we need to change the time, we'll send you alternative options</li>
+                </ul>
+                <p>If you have any questions, just reply to this email.</p>
+                <p>Best,<br>The Optima Team</p>
+              </div>
+              <div class="footer">
+                Optima • Creator Operations Partner
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+    } else if (data.type === "time_selection") {
       subject = `Action Required: Select Your Call Time — Optima`;
       html = `
         <!DOCTYPE html>

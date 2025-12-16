@@ -4,10 +4,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CheckCircle2, CalendarIcon, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+
+const timeSlots = [
+  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+  "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
+  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM",
+  "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM",
+  "9:00 PM", "9:30 PM", "10:00 PM"
+];
 
 // Schema validation for booking form
 const bookingSchema = z.object({
@@ -22,6 +34,8 @@ const bookingSchema = z.object({
 
 const Booking = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedTime, setSelectedTime] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -40,6 +54,11 @@ const Booking = () => {
     if (!validationResult.success) {
       const firstError = validationResult.error.errors[0];
       toast.error(firstError.message);
+      return;
+    }
+
+    if (!selectedDate || !selectedTime) {
+      toast.error("Please select a preferred date and time for your call.");
       return;
     }
     
@@ -65,7 +84,7 @@ const Booking = () => {
       return null;
     };
     
-    // Save to database using validated data - status defaults to 'pending'
+    // Save to database with requested date/time
     const { data: insertedBooking, error } = await supabase.from('bookings').insert({
       name: validatedData.name,
       email: validatedData.email,
@@ -74,7 +93,10 @@ const Booking = () => {
       niche: validatedData.niche || null,
       message: validatedData.holdback || null,
       bonus_tier: bonusTier,
-      source_page: window.location.pathname
+      source_page: window.location.pathname,
+      requested_date: format(selectedDate, 'yyyy-MM-dd'),
+      requested_time: selectedTime,
+      status: 'pending'
     }).select('booking_token').single();
     
     if (error || !insertedBooking) {
@@ -83,22 +105,24 @@ const Booking = () => {
       return;
     }
 
-    // Send time selection email (non-blocking)
+    // Send confirmation email to user
     try {
       await supabase.functions.invoke('send-booking-email', {
         body: {
-          type: 'time_selection',
+          type: 'booking_received',
           to: validatedData.email,
           name: validatedData.name,
           bookingToken: insertedBooking.booking_token,
+          requestedDate: format(selectedDate, 'EEEE, MMMM d, yyyy'),
+          requestedTime: selectedTime,
         }
       });
-      console.log('Time selection email sent successfully');
+      console.log('Confirmation email sent successfully');
     } catch (emailError) {
-      console.error('Failed to send time selection email:', emailError);
+      console.error('Failed to send confirmation email:', emailError);
     }
     
-    // Also send admin notification (non-blocking)
+    // Also send admin notification
     try {
       await supabase.functions.invoke('send-booking-notification', {
         body: {
@@ -135,10 +159,10 @@ const Booking = () => {
             Thank You!
           </h1>
           <p className="text-xl text-muted-foreground max-w-xl mx-auto">
-            Thanks — your request has been submitted. You'll receive an email shortly to select a preferred date and time.
+            Your booking request has been submitted. Check your email for a confirmation with all the details.
           </p>
           <p className="text-muted-foreground">
-            Please check your inbox (and spam folder) for the next steps.
+            We'll review your request and confirm your call time within 24 hours.
           </p>
           <Button 
             variant="elite-outline" 
@@ -250,6 +274,53 @@ const Booking = () => {
                 <SelectItem value="template">Templates / Tools</SelectItem>
                 <SelectItem value="membership">Membership / Community</SelectItem>
                 <SelectItem value="other">Other / Not Sure</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Preferred Date */}
+          <div className="space-y-2">
+            <Label>Preferred Date *</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal bg-background/50",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "PPP") : "Select your preferred date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={(date) => date < new Date() || date > new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Preferred Time */}
+          <div className="space-y-2">
+            <Label>Preferred Time *</Label>
+            <Select onValueChange={setSelectedTime} value={selectedTime}>
+              <SelectTrigger className="bg-background/50">
+                <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                <SelectValue placeholder="Select your preferred time" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeSlots.map((time) => (
+                  <SelectItem key={time} value={time}>
+                    {time}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
