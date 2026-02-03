@@ -5,8 +5,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           {/* Logo */}
           <div className="text-2xl font-bold">
-            <span className="text-gradient-red-orange">Zyro
-
+            <span className="text-gradient-red-orange">Esther
           </span>
           </div>
           
@@ -26,7 +25,7 @@ const Footer = () => {
         </div>
         
         <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground text-sm">
-          © {new Date().getFullYear()} Optima — All rights reserved.
+          © {new Date().getFullYear()} Esther — All rights reserved.
         </div>
       </div>
     </footer>;

@@ -35,7 +35,7 @@ const WhyCreatorsFail = () => {
             
             <div className="border-t border-border pt-8 mt-8">
               <p className="text-xl font-bold text-center text-gradient-red-orange">
-                Optima removes all five obstacles instantly.
+                Esther removes all five obstacles instantly.
               </p>
             </div>
           </div>

@@ -135,7 +135,7 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
               </div>
               <div class="footer">
-                Optima Booking System
+                Esther Booking System
               </div>
             </div>
           </body>
@@ -178,7 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
                 </p>
               </div>
               <div class="footer">
-                Optima Booking System
+                Esther Booking System
               </div>
             </div>
           </body>
@@ -225,7 +225,7 @@ const handler = async (req: Request): Promise<Response> => {
                 </p>
               </div>
               <div class="footer">
-                Optima Booking System
+                Esther Booking System
               </div>
             </div>
           </body>
@@ -241,7 +241,7 @@ const handler = async (req: Request): Promise<Response> => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Optima <onboarding@resend.dev>',
+        from: 'Esther <onboarding@resend.dev>',
         to: [ADMIN_EMAIL],
         subject,
         html,

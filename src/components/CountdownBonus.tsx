@@ -15,7 +15,7 @@ const CountdownBonus = () => {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const storedTime = localStorage.getItem("optima-countdown-start");
+    const storedTime = localStorage.getItem("esther-countdown-start");
     const now = Date.now();
     
     if (storedTime) {
@@ -26,7 +26,7 @@ const CountdownBonus = () => {
         setIsExpired(true);
       }
     } else {
-      localStorage.setItem("optima-countdown-start", now.toString());
+      localStorage.setItem("esther-countdown-start", now.toString());
     }
 
     const interval = setInterval(() => {
@@ -36,7 +36,7 @@ const CountdownBonus = () => {
           clearInterval(interval);
           
           // Update cookie to "none" when expired
-          document.cookie = `optima_bonus_tier=none; path=/; max-age=${60 * 60 * 24 * 7}`;
+          document.cookie = `esther_bonus_tier=none; path=/; max-age=${60 * 60 * 24 * 7}`;
           return 0;
         }
         
@@ -49,7 +49,7 @@ const CountdownBonus = () => {
         else if (newTime > 17 * 60) tier = '15-20';
         else if (newTime > 0) tier = '20-37';
         
-        document.cookie = `optima_bonus_tier=${tier}; path=/; max-age=${60 * 60 * 24 * 7}`;
+        document.cookie = `esther_bonus_tier=${tier}; path=/; max-age=${60 * 60 * 24 * 7}`;
         
         return newTime;
       });
@@ -71,11 +71,11 @@ const CountdownBonus = () => {
   }, []);
 
   const skipTime = (minutes: number) => {
-    const storedTime = localStorage.getItem("optima-countdown-start");
+    const storedTime = localStorage.getItem("esther-countdown-start");
     if (storedTime) {
       // Subtract time to make countdown lose time (go down faster)
       const newStartTime = parseInt(storedTime) - (minutes * 60 * 1000);
-      localStorage.setItem("optima-countdown-start", newStartTime.toString());
+      localStorage.setItem("esther-countdown-start", newStartTime.toString());
       
       const elapsed = Math.floor((Date.now() - newStartTime) / 1000);
       const remaining = Math.max(0, 37 * 60 - elapsed);
@@ -84,7 +84,7 @@ const CountdownBonus = () => {
   };
 
   const resetTimer = () => {
-    localStorage.setItem("optima-countdown-start", Date.now().toString());
+    localStorage.setItem("esther-countdown-start", Date.now().toString());
     setTimeLeft(37 * 60);
     setIsExpired(false);
   };

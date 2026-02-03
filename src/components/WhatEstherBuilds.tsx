@@ -43,7 +43,7 @@ const services = [
   },
 ];
 
-const WhatOptimaBuilds = () => {
+const WhatEstherBuilds = () => {
   return (
     <section className="py-32 relative">
       <div className="absolute inset-0 gradient-radial-red opacity-20" />
@@ -51,7 +51,7 @@ const WhatOptimaBuilds = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            What Optima Builds <span className="text-gradient-red-orange">For You</span>
+            What Esther Builds <span className="text-gradient-red-orange">For You</span>
           </h2>
         </div>
         
@@ -79,4 +79,4 @@ const WhatOptimaBuilds = () => {
   );
 };
 
-export default WhatOptimaBuilds;
+export default WhatEstherBuilds;
