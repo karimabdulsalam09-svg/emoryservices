@@ -67,7 +67,7 @@ const Booking = () => {
     // Get bonus tier from cookie
     const getBonusTier = () => {
       const cookies = document.cookie.split(';');
-      const bonusCookie = cookies.find(c => c.trim().startsWith('optima_bonus_tier='));
+      const bonusCookie = cookies.find(c => c.trim().startsWith('esther_bonus_tier='));
       return bonusCookie ? bonusCookie.split('=')[1] : 'none';
     };
     

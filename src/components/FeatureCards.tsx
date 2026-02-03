@@ -17,7 +17,7 @@ const features = [
     icon: Handshake,
     title: "A Partnership, Not a Service Fee",
     description:
-      "Creators keep 70%. Optima takes 30%. No upfront cost. Incentives aligned.",
+      "Creators keep 70%. Esther takes 30%. No upfront cost. Incentives aligned.",
   },
 ];
 
@@ -29,7 +29,7 @@ const FeatureCards = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16 animate-fade-up">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            The <span className="text-gradient-red-orange">Optima</span> Difference
+            The <span className="text-gradient-red-orange">Esther</span> Difference
           </h2>
         </div>
         

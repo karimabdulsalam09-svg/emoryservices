@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 const pricingPoints = [
   "$0 upfront",
   "You keep 70%",
-  "Optima handles all backend work",
+  "Esther handles all backend work",
   "No hidden fees",
   "No monthly payments",
 ];

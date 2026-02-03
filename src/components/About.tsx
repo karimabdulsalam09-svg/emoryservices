@@ -10,7 +10,7 @@ const About = () => {
           
           <div className="elite-card rounded-2xl p-8 md:p-12 space-y-6 text-lg text-muted-foreground leading-relaxed">
             <p>
-              I'm the founder of Optima — a creator-operations partner built for serious creators 
+              I'm the founder of Esther — a creator-operations partner built for serious creators 
               who want to turn attention into revenue without drowning in backend work.
             </p>
             
@@ -31,13 +31,13 @@ const About = () => {
             
             <p>
               There's no guesswork, no overwhelm, and no "learn this tool" burden on the creator. 
-              Optima handles the full backend, while the creator brings what matters most: authenticity, 
+              Esther handles the full backend, while the creator brings what matters most: authenticity, 
               expertise, and an engaged audience.
             </p>
             
             <p className="text-foreground font-semibold">
               If you're a creator who wants to open a new income stream without adding more work to your day, 
-              Optima builds the system that makes it happen — efficiently, intelligently, and with zero 
+              Esther builds the system that makes it happen — efficiently, intelligently, and with zero 
               operational drag.
             </p>
           </div>

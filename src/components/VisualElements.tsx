@@ -24,7 +24,7 @@ const manualWorkflow = [
   { task: "Launch Prep", hours: 8, icon: Zap },
 ];
 
-const optimaWorkflow = [
+const estherWorkflow = [
   { task: "Content", hours: 5, icon: FileText },
   { task: "Backend", hours: 0, icon: Code },
   { task: "Operations", hours: 1, icon: Clock },
@@ -106,7 +106,7 @@ const VisualElements = () => {
               Hours Saved Per Week
             </h3>
             <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-8">
-              Time investment: Manual vs. Optima-managed workflow
+              Time investment: Manual vs. Esther-managed workflow
             </p>
             
             {/* Stacked on mobile, side-by-side on desktop */}
@@ -134,11 +134,11 @@ const VisualElements = () => {
                 </div>
               </div>
 
-              {/* Optima Workflow Card */}
+              {/* Esther Workflow Card */}
               <div className="border border-primary/30 rounded-lg p-4 md:p-6 bg-primary/5 glow-orange">
-                <div className="text-base md:text-lg font-bold mb-3 md:mb-4 text-gradient-red-orange">With Optima</div>
+                <div className="text-base md:text-lg font-bold mb-3 md:mb-4 text-gradient-red-orange">With Esther</div>
                 <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
-                  {optimaWorkflow.map((item, index) => {
+                  {estherWorkflow.map((item, index) => {
                     const Icon = item.icon;
                     return (
                       <div key={index} className="flex items-center gap-2">
@@ -227,7 +227,7 @@ const VisualElements = () => {
         <div className="max-w-5xl mx-auto animate-fade-up" style={{ animationDelay: "0.3s" }}>
           <div className="elite-card rounded-xl p-4 md:p-8 lg:p-12">
             <h3 className="text-lg md:text-2xl font-bold mb-6 md:mb-12 text-center text-foreground">
-              The Optima Workflow
+              The Esther Workflow
             </h3>
             <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-3 md:gap-6">
               {[

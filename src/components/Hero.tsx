@@ -29,7 +29,7 @@ const Hero = () => {
           
           {/* Subheadline */}
           <p className="text-base md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2 md:px-0">
-            Optima builds your entire digital-product system using AI-accelerated workflows. 
+            Esther builds your entire digital-product system using AI-accelerated workflows. 
             You stay focused on content — we handle all backend work, launch systems, and operations.
           </p>
           

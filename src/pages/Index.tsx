@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Hero from "@/components/Hero";
 import FeatureCards from "@/components/FeatureCards";
-import WhatOptimaBuilds from "@/components/WhatOptimaBuilds";
+import WhatEstherBuilds from "@/components/WhatEstherBuilds";
 import About from "@/components/About";
 import HowItWorks from "@/components/HowItWorks";
 import WhyCreatorsFail from "@/components/WhyCreatorsFail";
@@ -24,7 +24,7 @@ const Index = () => {
       <div className="relative z-10">
         <Hero />
         <FeatureCards />
-        <WhatOptimaBuilds />
+        <WhatEstherBuilds />
         <About />
         <HowItWorks />
         <WhyCreatorsFail />
