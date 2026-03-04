@@ -19,7 +19,7 @@ const StrategySession = () => {
           className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "0px 0px -33% 0px" }}
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -32,7 +32,7 @@ const StrategySession = () => {
             className="glass-card p-8 md:p-12 reactive"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px 0px -33% 0px" }}
             transition={{ duration: 0.5 }}
           >
             <div className="space-y-5 mb-8">
@@ -42,7 +42,7 @@ const StrategySession = () => {
                   className="flex items-start gap-4 text-lg"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: true, margin: "0px 0px -33% 0px" }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                 >
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">

@@ -20,7 +20,7 @@ const WhatEstherBuilds = () => {
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "0px 0px -33% 0px" }}
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -53,7 +53,7 @@ const WhatEstherBuilds = () => {
                 className="glass-card p-6 space-y-3 reactive"
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, amount: 0.3 }}
+                viewport={{ once: true, margin: "0px 0px -33% 0px" }}
                 transition={{ duration: 0.6, delay: 0.15 + index * 0.12 }}
               >
                 <div className="w-12 h-12 rounded-2xl bg-secondary/20 flex items-center justify-center">

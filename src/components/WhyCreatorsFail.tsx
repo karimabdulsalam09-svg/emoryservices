@@ -18,7 +18,7 @@ const WhyCreatorsFail = () => {
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px 0px -33% 0px" }}
           >
             Why Most Creators <span className="text-gradient-neon">Never Launch</span>
           </motion.h2>
@@ -27,7 +27,7 @@ const WhyCreatorsFail = () => {
             className="glass-card p-8 md:p-12 space-y-6 reactive"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px 0px -33% 0px" }}
             transition={{ duration: 0.5 }}
           >
             {obstacles.map((obstacle, index) => (
@@ -36,7 +36,7 @@ const WhyCreatorsFail = () => {
                 className="flex items-center gap-4 text-lg"
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px 0px -33% 0px" }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">

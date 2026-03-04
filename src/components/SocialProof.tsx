@@ -14,7 +14,7 @@ const SocialProof = () => {
           className="text-center mb-20"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "0px 0px -33% 0px" }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             Industry <span className="text-gradient-neon">Insights</span>
@@ -31,7 +31,7 @@ const SocialProof = () => {
               className="glass-card p-8 reactive"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px 0px -33% 0px" }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
             >
               <p className="text-lg text-foreground mb-6 leading-relaxed font-semibold">

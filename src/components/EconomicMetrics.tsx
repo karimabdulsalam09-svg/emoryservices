@@ -14,7 +14,7 @@ const EconomicMetrics = () => {
           className="text-center mb-8 md:mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "0px 0px -33% 0px" }}
         >
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4">
             The <span className="text-gradient-blue-olive">Market</span> Opportunity
@@ -28,7 +28,7 @@ const EconomicMetrics = () => {
               className="glass-card p-4 md:p-8 text-center reactive"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px 0px -33% 0px" }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
             >
               <div className="text-lg md:text-3xl lg:text-4xl font-bold text-gradient-neon mb-2 md:mb-4 leading-tight">

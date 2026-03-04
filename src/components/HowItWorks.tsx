@@ -36,7 +36,7 @@ const HowItWorks = () => {
           className="text-center mb-20"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "0px 0px -33% 0px" }}
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -51,7 +51,7 @@ const HowItWorks = () => {
                 className="flex gap-6 items-start mb-4"
                 initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
+                viewport={{ once: true, margin: "0px 0px -33% 0px" }}
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
                 <div className="flex flex-col items-center">
@@ -79,7 +79,7 @@ const HowItWorks = () => {
                   className="flex justify-start pl-[30px] mb-4"
                   initial={{ opacity: 0, scaleY: 0 }}
                   whileInView={{ opacity: 1, scaleY: 1 }}
-                  viewport={{ once: true, amount: 0.5 }}
+                  viewport={{ once: true, margin: "0px 0px -33% 0px" }}
                   transition={{ duration: 0.6, delay: 0.5 }}
                   style={{ transformOrigin: "top" }}
                 >
