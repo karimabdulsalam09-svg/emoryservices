@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 const FinalCTA = () => {
   return (
@@ -7,7 +8,13 @@ const FinalCTA = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-up">
+        <motion.div
+          className="max-w-3xl mx-auto text-center space-y-8"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-4xl md:text-6xl font-bold text-foreground">
             Ready to Add a New Income Stream?
           </h2>
@@ -25,7 +32,7 @@ const FinalCTA = () => {
             Book a Call
             <ArrowRight className="transition-transform group-hover:translate-x-1" />
           </Button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
