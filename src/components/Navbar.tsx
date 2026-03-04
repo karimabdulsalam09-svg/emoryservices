@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X, ExternalLink } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const navLinks = [
   { label: "What We Do", href: "#what-we-do" },
   { label: "How It Works", href: "#how-it-works" },
-  { label: "Monetisation Gameplan", href: "#monetisation-gameplan" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Monetisation Gameplan", href: "/monetisation-gameplan", isRoute: true },
   { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "About", href: "/about", isRoute: true },
-  { label: "FAQ", href: "/faq", isRoute: true },
 ];
 
 const Navbar = () => {
@@ -28,6 +28,11 @@ const Navbar = () => {
     if ((link as any).isRoute) {
       window.location.href = link.href;
     } else {
+      // If we're not on the homepage, go there first
+      if (window.location.pathname !== "/") {
+        window.location.href = "/" + link.href;
+        return;
+      }
       const el = document.querySelector(link.href);
       el?.scrollIntoView({ behavior: "smooth" });
     }
@@ -38,9 +43,9 @@ const Navbar = () => {
       <nav
         className="transition-all duration-300 w-[calc(100%-2rem)] max-w-6xl"
         style={{
-          background: "rgba(255,255,255,0.15)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
+          background: "rgba(255,255,255,0.12)",
+          backdropFilter: "blur(32px)",
+          WebkitBackdropFilter: "blur(32px)",
           borderRadius: "20px",
           border: "1px solid rgba(255,255,255,0.3)",
           boxShadow:
@@ -50,13 +55,13 @@ const Navbar = () => {
       >
         <div className="flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="text-xl md:text-2xl font-bold text-gradient-neon">
+        <a href="/" className="text-xl md:text-2xl font-bold text-gradient-neon">
           Esther
         </a>
 
         {/* Desktop links */}
         {!isMobile && (
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5">
             {navLinks.map((link) => (
               <button
                 key={link.href}
@@ -66,6 +71,15 @@ const Navbar = () => {
                 {link.label}
               </button>
             ))}
+            <a
+              href="https://karim-abdulsalam.lovable.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors flex items-center gap-1"
+            >
+              Projects
+              <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
         )}
 
@@ -96,8 +110,8 @@ const Navbar = () => {
         <div
           className="px-4 pb-4 pt-2 flex flex-col gap-3"
           style={{
-            background: "rgba(255,255,255,0.15)",
-            backdropFilter: "blur(20px)",
+            background: "rgba(255,255,255,0.1)",
+            backdropFilter: "blur(32px)",
           }}
         >
           {navLinks.map((link) => (
@@ -109,6 +123,15 @@ const Navbar = () => {
               {link.label}
             </button>
           ))}
+          <a
+            href="https://karim-abdulsalam.lovable.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-foreground/80 hover:text-primary text-left py-2 flex items-center gap-1"
+          >
+            Projects
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
       )}
       </nav>
