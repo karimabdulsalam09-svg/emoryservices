@@ -42,41 +42,26 @@ const FeatureCards = () => {
         </motion.div>
 
         <div ref={containerRef} className="max-w-6xl mx-auto relative">
-          {/* SVG curvy connecting lines */}
+          {/* SVG curvy connecting lines — behind cards */}
           <svg
-            className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
+            className="absolute inset-0 w-full h-full pointer-events-none hidden md:block z-0"
             viewBox="0 0 1200 400"
             preserveAspectRatio="none"
           >
-            {/* Line from center title area down to card 1 (left) */}
-            <path
-              d="M600,0 C600,60 200,60 200,120"
-              className="curve-line"
-              strokeDasharray="6 4"
-            />
-            {/* Line from center title area down to card 2 (center) */}
-            <path
-              d="M600,0 C600,60 600,60 600,120"
-              className="curve-line"
-              strokeDasharray="6 4"
-            />
-            {/* Line from center title area down to card 3 (right) */}
-            <path
-              d="M600,0 C600,60 1000,60 1000,120"
-              className="curve-line"
-              strokeDasharray="6 4"
-            />
+            <path d="M600,0 C600,60 200,60 200,120" className="curve-line" strokeDasharray="6 4" />
+            <path d="M600,0 C600,60 600,60 600,120" className="curve-line" strokeDasharray="6 4" />
+            <path d="M600,0 C600,60 1000,60 1000,120" className="curve-line" strokeDasharray="6 4" />
           </svg>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 relative z-10">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 className="glass-card p-8 space-y-4 reactive"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.7, delay: 0.2 + index * 0.2 }}
               >
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <feature.icon className="w-7 h-7 text-primary" />
