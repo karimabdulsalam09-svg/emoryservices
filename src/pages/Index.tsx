@@ -13,6 +13,7 @@ import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import BackgroundGlows from "@/components/BackgroundGlows";
 import OwnWebsite from "@/components/OwnWebsite";
+import MonetisationGameplan from "@/components/MonetisationGameplan";
 
 const Index = () => {
   return (
@@ -27,6 +28,7 @@ const Index = () => {
         <HowItWorks />
         <WhyCreatorsFail />
         <WorkflowDiagram />
+        <MonetisationGameplan />
         <EconomicMetrics />
         <SocialProof />
         <LaunchTimeline />

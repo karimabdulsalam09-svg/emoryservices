@@ -12,7 +12,7 @@ const FinalCTA = () => {
           className="max-w-3xl mx-auto text-center space-y-8"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "0px 0px -33% 0px" }}
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-6xl font-bold text-foreground">
