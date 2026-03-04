@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
 import PricingPage from "./pages/PricingPage";
 import FaqPage from "./pages/FaqPage";
+import MonetisationGameplanPage from "./pages/MonetisationGameplanPage";
 import Booking from "./pages/Booking";
 import ChooseTime from "./pages/ChooseTime";
 import Reschedule from "./pages/Reschedule";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/about" element={<AboutPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/monetisation-gameplan" element={<MonetisationGameplanPage />} />
           <Route path="/booking" element={<Booking />} />
           <Route path="/choose-time" element={<ChooseTime />} />
           <Route path="/reschedule" element={<Reschedule />} />

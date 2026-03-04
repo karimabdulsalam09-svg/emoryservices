@@ -9,11 +9,11 @@ import EconomicMetrics from "@/components/EconomicMetrics";
 import SocialProof from "@/components/SocialProof";
 import LaunchTimeline from "@/components/LaunchTimeline";
 import StrategySession from "@/components/StrategySession";
+import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import BackgroundGlows from "@/components/BackgroundGlows";
 import OwnWebsite from "@/components/OwnWebsite";
-import MonetisationGameplan from "@/components/MonetisationGameplan";
 
 const Index = () => {
   return (
@@ -28,11 +28,11 @@ const Index = () => {
         <HowItWorks />
         <WhyCreatorsFail />
         <WorkflowDiagram />
-        <MonetisationGameplan />
         <EconomicMetrics />
         <SocialProof />
         <LaunchTimeline />
         <StrategySession />
+        <FAQ />
         <FinalCTA />
         <Footer />
       </div>

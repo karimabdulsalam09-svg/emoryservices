@@ -84,35 +84,27 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            checkAdminRole(session.user.id);
-          }, 0);
-        } else {
-          setIsAdmin(false);
-          setLoading(false);
-        }
-      }
-    );
+    const isAuthenticated = localStorage.getItem("admin_authenticated") === "true";
+    if (!isAuthenticated) {
+      toast.error("Please login to access the dashboard.");
+      navigate("/admin/login");
+      return;
+    }
+    setIsAdmin(true);
+    fetchBookings();
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        checkAdminRole(session.user.id);
-      } else {
-        toast.error("Please login to access the dashboard.");
-        navigate("/admin/login");
-      }
-    });
+    const channel = supabase
+      .channel('dashboard-bookings-main')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bookings' },
+        () => fetchBookings()
+      )
+      .subscribe();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [navigate]);
 
   const checkAdminRole = async (userId: string) => {
@@ -188,7 +180,7 @@ const Dashboard = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem("admin_authenticated");
     toast.success("Logged out successfully");
     navigate("/admin/login");
   };
