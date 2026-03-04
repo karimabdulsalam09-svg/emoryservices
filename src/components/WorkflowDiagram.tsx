@@ -28,8 +28,8 @@ const WorkflowDiagram = () => {
                     className="bg-primary/10 border border-primary/30 text-foreground px-6 py-4 rounded-2xl font-bold text-lg text-center min-w-[140px]"
                     initial={{ opacity: 0, scale: 0.8 }}
                     whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.15 }}
+                    viewport={{ once: true, amount: 0.4 }}
+                    transition={{ duration: 0.6, delay: 0.2 + index * 0.2 }}
                   >
                     {step}
                   </motion.div>
@@ -41,8 +41,8 @@ const WorkflowDiagram = () => {
                       className="flex-shrink-0"
                       initial={{ opacity: 0, scaleX: 0 }}
                       whileInView={{ opacity: 1, scaleX: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: index * 0.15 + 0.2 }}
+                      viewport={{ once: true, amount: 0.4 }}
+                      transition={{ duration: 0.5, delay: 0.3 + index * 0.2 }}
                       style={{ transformOrigin: "left" }}
                     >
                       <path

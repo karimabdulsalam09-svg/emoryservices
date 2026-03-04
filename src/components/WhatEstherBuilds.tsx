@@ -53,8 +53,8 @@ const WhatEstherBuilds = () => {
                 className="glass-card p-6 space-y-3 reactive"
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.08 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, delay: 0.15 + index * 0.12 }}
               >
                 <div className="w-12 h-12 rounded-2xl bg-secondary/20 flex items-center justify-center">
                   <service.icon className="w-6 h-6 text-secondary" />

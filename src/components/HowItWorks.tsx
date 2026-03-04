@@ -51,8 +51,8 @@ const HowItWorks = () => {
                 className="flex gap-6 items-start mb-4"
                 initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: 0.1 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
               >
                 <div className="flex flex-col items-center">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 relative z-10">
@@ -79,8 +79,8 @@ const HowItWorks = () => {
                   className="flex justify-start pl-[30px] mb-4"
                   initial={{ opacity: 0, scaleY: 0 }}
                   whileInView={{ opacity: 1, scaleY: 1 }}
-                  viewport={{ once: true, margin: "-30px" }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
                   style={{ transformOrigin: "top" }}
                 >
                   <svg width="40" height="60" viewBox="0 0 40 60" className="overflow-visible">
