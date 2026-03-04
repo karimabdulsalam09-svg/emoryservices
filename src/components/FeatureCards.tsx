@@ -23,25 +23,23 @@ const features = [
 
 const FeatureCards = () => {
   return (
-    <section className="py-32 relative">
-      <div className="absolute inset-0 gradient-radial-orange opacity-30" />
-      
+    <section className="py-20 relative">
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16 animate-fade-up">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            The <span className="text-gradient-red-orange">Esther</span> Difference
+            The <span className="text-gradient-neon">Esther</span> Difference
           </h2>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="elite-card rounded-2xl p-8 space-y-4 animate-fade-up"
+              className="glass-card p-8 space-y-4 animate-fade-up reactive"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="w-14 h-14 rounded-xl gradient-red-orange flex items-center justify-center">
-                <feature.icon className="w-7 h-7 text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <feature.icon className="w-7 h-7 text-primary" />
               </div>
               <h3 className="text-2xl font-bold text-foreground">
                 {feature.title}

@@ -15,13 +15,11 @@ const metrics = [
 
 const EconomicMetrics = () => {
   return (
-    <section className="py-16 md:py-32 relative">
-      <div className="absolute inset-0 gradient-radial-red opacity-10" />
-      
+    <section className="py-20 relative">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center mb-8 md:mb-16">
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4">
-            The <span className="text-gradient-orange-blue">Market</span> Opportunity
+            The <span className="text-gradient-blue-olive">Market</span> Opportunity
           </h2>
         </div>
 
@@ -29,10 +27,10 @@ const EconomicMetrics = () => {
           {metrics.map((metric, index) => (
             <div
               key={index}
-              className="elite-card rounded-xl p-4 md:p-8 text-center animate-fade-up"
+              className="glass-card p-4 md:p-8 text-center animate-fade-up reactive"
               style={{ animationDelay: `${index * 0.15}s` }}
             >
-              <div className="text-lg md:text-3xl lg:text-4xl font-bold text-gradient-red-orange mb-2 md:mb-4 leading-tight">
+              <div className="text-lg md:text-3xl lg:text-4xl font-bold text-gradient-neon mb-2 md:mb-4 leading-tight">
                 {metric.stat}
               </div>
               <div className="text-xs md:text-sm text-muted-foreground font-semibold">
