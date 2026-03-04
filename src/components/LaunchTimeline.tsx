@@ -1,4 +1,5 @@
 import { Lightbulb, FileText, Wrench, Rocket, DollarSign } from "lucide-react";
+import { motion } from "framer-motion";
 
 const timelineSteps = [
   { day: "Week 1", title: "Topic Selection", icon: Lightbulb },
@@ -12,24 +13,32 @@ const LaunchTimeline = () => {
   return (
     <section className="py-20 relative">
       <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-20">
+        <motion.div
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             From Idea to <span className="text-gradient-neon">Revenue</span> in Days
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             A clear, structured timeline from concept to cash flow
           </p>
-        </div>
+        </motion.div>
 
         <div className="max-w-6xl mx-auto">
-          {/* Desktop Timeline */}
+          {/* Desktop */}
           <div className="hidden md:flex items-start justify-between relative">
             <div className="absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/40 via-secondary/40 to-primary/40" />
             {timelineSteps.map((step, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="flex flex-col items-center relative animate-fade-up"
-                style={{ animationDelay: `${index * 0.15}s` }}
+                className="flex flex-col items-center relative"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
               >
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 relative z-10">
                   <step.icon className="w-8 h-8 text-primary" />
@@ -38,26 +47,29 @@ const LaunchTimeline = () => {
                   <div className="text-sm font-bold text-primary mb-2">{step.day}</div>
                   <div className="text-lg font-semibold text-foreground">{step.title}</div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          {/* Mobile Timeline */}
-          <div className="md:hidden space-y-8">
+          {/* Mobile */}
+          <div className="md:hidden space-y-6">
             {timelineSteps.map((step, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="flex items-center gap-6 animate-fade-up"
-                style={{ animationDelay: `${index * 0.15}s` }}
+                className="flex items-center gap-6"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <step.icon className="w-8 h-8 text-primary" />
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <step.icon className="w-7 h-7 text-primary" />
                 </div>
                 <div>
                   <div className="text-sm font-bold text-primary mb-1">{step.day}</div>
-                  <div className="text-xl font-semibold text-foreground">{step.title}</div>
+                  <div className="text-lg font-semibold text-foreground">{step.title}</div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
