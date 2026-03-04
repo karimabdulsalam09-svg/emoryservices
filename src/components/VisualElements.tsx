@@ -10,7 +10,6 @@ const revenueTimeline = [
   { month: "Month 6", revenue: 13500 },
 ];
 
-// Simplified timeline for mobile - key milestones only
 const mobileRevenueTimeline = [
   { month: "Month 1", revenue: 500 },
   { month: "Month 3", revenue: 2800 },
@@ -36,61 +35,43 @@ const VisualElements = () => {
   const timelineData = isMobile ? mobileRevenueTimeline : revenueTimeline;
 
   return (
-    <section className="py-16 md:py-32 relative">
-      <div className="absolute inset-0 gradient-radial-blue opacity-10" />
-      
+    <section className="py-20 relative">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center mb-10 md:mb-20">
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4">
-            The <span className="text-gradient-red-orange">Data</span> Behind Digital Products
+            The <span className="text-gradient-neon">Data</span> Behind Digital Products
           </h2>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6 md:gap-12 mb-10 md:mb-20">
           {/* Revenue Growth Timeline */}
-          <div className="elite-card rounded-xl p-4 md:p-8 animate-fade-up">
-            <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-6 text-foreground">
-              Creator Revenue Growth
-            </h3>
-            <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-8">
-              Average monthly revenue trajectory after launching a digital product
-            </p>
-            
-            {/* Mobile: Vertical list layout */}
+          <div className="glass-card p-4 md:p-8 animate-fade-up reactive">
+            <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-6 text-foreground">Creator Revenue Growth</h3>
+            <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-8">Average monthly revenue trajectory after launching a digital product</p>
+
             {isMobile ? (
               <div className="space-y-4">
                 {timelineData.map((item, index) => (
                   <div key={index} className="flex items-center justify-between border-b border-border/30 pb-3 last:border-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-primary glow-orange" />
+                      <div className="w-3 h-3 rounded-full bg-primary" />
                       <span className="text-sm font-semibold text-foreground">{item.month}</span>
                     </div>
-                    <span className="text-lg font-bold text-gradient-red-orange">
+                    <span className="text-lg font-bold text-gradient-neon">
                       ${item.revenue.toLocaleString()}{index === timelineData.length - 1 ? "+" : ""}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              /* Desktop: Horizontal timeline */
               <div className="relative py-12">
-                {/* Timeline line */}
-                <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-gradient-red via-gradient-orange to-gradient-blue opacity-30" />
-                
-                {/* Timeline nodes */}
+                <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30" />
                 <div className="relative flex justify-between items-center">
                   {timelineData.map((item, index) => (
                     <div key={index} className="flex flex-col items-center">
-                      {/* Node */}
-                      <div className="w-4 h-4 rounded-full bg-primary glow-orange mb-4 relative z-10" />
-                      
-                      {/* Month label */}
-                      <div className="text-xs font-semibold text-foreground mb-2 whitespace-nowrap">
-                        {item.month.replace("Month ", "M")}
-                      </div>
-                      
-                      {/* Revenue value */}
-                      <div className="text-lg md:text-xl font-bold text-gradient-red-orange">
+                      <div className="w-4 h-4 rounded-full bg-primary mb-4 relative z-10" />
+                      <div className="text-xs font-semibold text-foreground mb-2 whitespace-nowrap">{item.month.replace("Month ", "M")}</div>
+                      <div className="text-lg md:text-xl font-bold text-gradient-neon">
                         ${item.revenue.toLocaleString()}{index === timelineData.length - 1 ? "+" : ""}
                       </div>
                     </div>
@@ -100,19 +81,13 @@ const VisualElements = () => {
             )}
           </div>
 
-          {/* Hours Comparison Cards */}
-          <div className="elite-card rounded-xl p-4 md:p-8 animate-fade-up" style={{ animationDelay: "0.15s" }}>
-            <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-6 text-foreground">
-              Hours Saved Per Week
-            </h3>
-            <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-8">
-              Time investment: Manual vs. Esther-managed workflow
-            </p>
-            
-            {/* Stacked on mobile, side-by-side on desktop */}
+          {/* Hours Comparison */}
+          <div className="glass-card p-4 md:p-8 animate-fade-up reactive" style={{ animationDelay: "0.15s" }}>
+            <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-6 text-foreground">Hours Saved Per Week</h3>
+            <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-8">Time investment: Manual vs. Esther-managed workflow</p>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {/* Manual Workflow Card */}
-              <div className="border border-border/50 rounded-lg p-4 md:p-6 bg-background/50">
+              <div className="border border-border rounded-2xl p-4 md:p-6 bg-muted/30">
                 <div className="text-base md:text-lg font-bold mb-3 md:mb-4 text-muted-foreground">Manual Workflow</div>
                 <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
                   {manualWorkflow.map((item, index) => {
@@ -126,7 +101,7 @@ const VisualElements = () => {
                     );
                   })}
                 </div>
-                <div className="pt-2 md:pt-3 border-t border-border/50">
+                <div className="pt-2 md:pt-3 border-t border-border">
                   <div className="flex items-center justify-between">
                     <span className="text-xs md:text-sm font-semibold text-muted-foreground">Total:</span>
                     <span className="text-xl md:text-2xl font-bold text-foreground">78h</span>
@@ -134,9 +109,8 @@ const VisualElements = () => {
                 </div>
               </div>
 
-              {/* Esther Workflow Card */}
-              <div className="border border-primary/30 rounded-lg p-4 md:p-6 bg-primary/5 glow-orange">
-                <div className="text-base md:text-lg font-bold mb-3 md:mb-4 text-gradient-red-orange">With Esther</div>
+              <div className="border border-primary/30 rounded-2xl p-4 md:p-6 bg-primary/5">
+                <div className="text-base md:text-lg font-bold mb-3 md:mb-4 text-gradient-neon">With Esther</div>
                 <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
                   {estherWorkflow.map((item, index) => {
                     const Icon = item.icon;
@@ -152,7 +126,7 @@ const VisualElements = () => {
                 <div className="pt-2 md:pt-3 border-t border-primary/30">
                   <div className="flex items-center justify-between">
                     <span className="text-xs md:text-sm font-semibold text-foreground">Total:</span>
-                    <span className="text-xl md:text-2xl font-bold text-gradient-red-orange">8h</span>
+                    <span className="text-xl md:text-2xl font-bold text-gradient-neon">8h</span>
                   </div>
                 </div>
               </div>
@@ -160,15 +134,13 @@ const VisualElements = () => {
           </div>
         </div>
 
-        {/* What This Actually Means Section */}
+        {/* What This Means */}
         <div className="max-w-5xl mx-auto mb-10 md:mb-20 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-          <div className="elite-card rounded-xl p-4 md:p-8 lg:p-12">
-            <h3 className="text-xl md:text-3xl font-bold mb-6 md:mb-12 text-center text-gradient-red-orange">
+          <div className="glass-card p-4 md:p-8 lg:p-12 reactive">
+            <h3 className="text-xl md:text-3xl font-bold mb-6 md:mb-12 text-center text-gradient-neon">
               What This Actually Means for You
             </h3>
-
             <div className="space-y-6 md:space-y-10">
-              {/* Followers to Revenue Multiplier */}
               <div>
                 <h4 className="text-base md:text-xl font-bold mb-2 md:mb-4 text-foreground flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-primary" />
@@ -176,46 +148,32 @@ const VisualElements = () => {
                 </h4>
                 <p className="text-sm md:text-lg text-muted-foreground leading-relaxed">
                   Creators who add <span className="text-foreground font-semibold">+300 followers</span> alone…
-                  <br />
-                  add <span className="text-gradient-red-orange font-bold">+1,000–4,000</span> with proper backend systems.
-                  <br />
-                  <span className="text-foreground">Because growth compounds once a product exists.</span>
+                  <br />add <span className="text-gradient-neon font-bold">+1,000–4,000</span> with proper backend systems.
+                  <br /><span className="text-foreground">Because growth compounds once a product exists.</span>
                 </p>
               </div>
-
-              {/* First Launch Outcome */}
               <div>
                 <h4 className="text-base md:text-xl font-bold mb-2 md:mb-4 text-foreground flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                   First Launch Outcome (Revenue Example)
                 </h4>
                 <p className="text-sm md:text-lg text-muted-foreground leading-relaxed">
-                  Creators who stay <span className="text-muted">"content-only"</span> go from $0 to inconsistent spikes.
-                  <br />
-                  Creators who launch with proper backend go from <span className="text-gradient-red-orange font-bold">$2k–$15k</span>
-                  <br />
-                  <span className="text-foreground font-semibold">on their very first product.</span>
+                  Creators who launch with proper backend go from <span className="text-gradient-neon font-bold">$2k–$15k</span>
+                  <br /><span className="text-foreground font-semibold">on their very first product.</span>
                 </p>
               </div>
-
-              {/* Simple Scenario */}
               <div>
                 <h4 className="text-base md:text-xl font-bold mb-2 md:mb-4 text-foreground flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                  Simple Scenario (Very Relatable)
+                  Simple Scenario
                 </h4>
-                <div className="bg-background/50 border border-border/50 rounded-lg p-4 md:p-6">
+                <div className="bg-muted/30 border border-border rounded-2xl p-4 md:p-6">
                   <p className="text-sm md:text-lg text-muted-foreground leading-relaxed">
                     <span className="text-foreground font-semibold">Scenario:</span>
-                    <br />
-                    – You have <span className="text-foreground font-semibold">10,000 followers</span>
-                    <br />
-                    – <span className="text-foreground font-semibold">1%</span> of them buy your first <span className="text-foreground font-semibold">$29 product</span>
-                    <br />
-                    <br />
-                    → That's <span className="text-gradient-red-orange font-bold text-base md:text-xl">$2,900</span> on launch week
-                    <br />
-                    → And <span className="text-primary font-semibold">recurring sales every month afterwards</span>
+                    <br />– You have <span className="text-foreground font-semibold">10,000 followers</span>
+                    <br />– <span className="text-foreground font-semibold">1%</span> of them buy your first <span className="text-foreground font-semibold">$29 product</span>
+                    <br /><br />→ That's <span className="text-gradient-neon font-bold text-base md:text-xl">$2,900</span> on launch week
+                    <br />→ And <span className="text-primary font-semibold">recurring sales every month afterwards</span>
                   </p>
                 </div>
               </div>
@@ -225,20 +183,20 @@ const VisualElements = () => {
 
         {/* Workflow Diagram */}
         <div className="max-w-5xl mx-auto animate-fade-up" style={{ animationDelay: "0.3s" }}>
-          <div className="elite-card rounded-xl p-4 md:p-8 lg:p-12">
+          <div className="glass-card p-4 md:p-8 lg:p-12 reactive">
             <h3 className="text-lg md:text-2xl font-bold mb-6 md:mb-12 text-center text-foreground">
               The Esther Workflow
             </h3>
             <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-3 md:gap-6">
               {[
-                { label: "Idea", color: "gradient-red-orange" },
-                { label: "Product Blueprint", color: "gradient-orange-blue" },
-                { label: "Backend Build", color: "gradient-red-blue" },
-                { label: "Launch", color: "gradient-red-orange" },
-                { label: "Revenue", color: "gradient-orange-blue" },
+                { label: "Idea" },
+                { label: "Product Blueprint" },
+                { label: "Backend Build" },
+                { label: "Launch" },
+                { label: "Revenue" },
               ].map((step, index) => (
                 <div key={index} className="flex items-center gap-3 md:gap-6">
-                  <div className={`${step.color} text-white px-4 py-2 md:px-8 md:py-4 rounded-lg font-bold text-sm md:text-lg text-center min-w-[100px] md:min-w-[160px] glow-orange`}>
+                  <div className="bg-primary text-primary-foreground px-4 py-2 md:px-8 md:py-4 rounded-2xl font-bold text-sm md:text-lg text-center min-w-[100px] md:min-w-[160px]">
                     {step.label}
                   </div>
                   {index < 4 && (

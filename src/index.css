@@ -1,128 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    /* Elite black theme with red/orange/blue gradients */
-    --background: 0 0% 3%;
-    --foreground: 0 0% 98%;
+    /* Premium Creator — Light glassmorphic palette */
+    --background: 0 0% 99%;
+    --foreground: 220 20% 15%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 15%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 15%;
 
-    /* Red primary */
-    --primary: 0 85% 60%;
+    /* Neon Blue primary #00E5FF → hsl(187, 100%, 50%) */
+    --primary: 187 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    /* Orange secondary */
-    --secondary: 25 95% 60%;
-    --secondary-foreground: 0 0% 100%;
+    /* Light Olive Green secondary #B2C28E → hsl(82, 29%, 66%) */
+    --secondary: 82 29% 66%;
+    --secondary-foreground: 220 20% 15%;
 
-    /* Muted grays */
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    /* Muted */
+    --muted: 210 20% 95%;
+    --muted-foreground: 220 10% 45%;
 
-    /* Blue accent */
-    --accent: 210 100% 60%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent = Neon Blue lighter */
+    --accent: 187 80% 92%;
+    --accent-foreground: 220 20% 15%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
-    --ring: 0 85% 60%;
+    --border: 220 15% 90%;
+    --input: 220 15% 92%;
+    --ring: 187 100% 50%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    /* Custom gradient colors */
-    --gradient-red: 0 85% 60%;
-    --gradient-orange: 25 95% 60%;
-    --gradient-blue: 210 100% 60%;
-
-    /* Elite shadows */
-    --shadow-glow-red: 0 85% 60% / 0.3;
-    --shadow-glow-orange: 25 95% 60% / 0.3;
-    --shadow-glow-blue: 210 100% 60% / 0.3;
-
-    /* Smooth transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Custom tokens */
+    --neon-blue: 187 100% 50%;
+    --olive-green: 82 29% 66%;
   }
 }
 
 @layer utilities {
-  /* Elite gradient backgrounds */
-  .gradient-red-orange {
-    background: linear-gradient(135deg, hsl(var(--gradient-red)), hsl(var(--gradient-orange)));
-  }
-  
-  .gradient-orange-blue {
-    background: linear-gradient(135deg, hsl(var(--gradient-orange)), hsl(var(--gradient-blue)));
-  }
-  
-  .gradient-red-blue {
-    background: linear-gradient(135deg, hsl(var(--gradient-red)), hsl(var(--gradient-blue)));
+  /* Glassmorphic card */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 1.5rem;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .gradient-radial-red {
-    background: radial-gradient(circle at top, hsl(var(--gradient-red) / 0.15), transparent 70%);
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.55);
+    transform: scale(1.02);
+    box-shadow: 0 8px 40px hsl(187 100% 50% / 0.15);
   }
 
-  .gradient-radial-orange {
-    background: radial-gradient(circle at center, hsl(var(--gradient-orange) / 0.15), transparent 70%);
+  /* Reactive text box / element */
+  .reactive {
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .gradient-radial-blue {
-    background: radial-gradient(circle at bottom, hsl(var(--gradient-blue) / 0.15), transparent 70%);
+  .reactive:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 40px hsl(187 100% 50% / 0.18);
   }
 
-  /* Elite text gradients */
-  .text-gradient-red-orange {
-    background: linear-gradient(135deg, hsl(var(--gradient-red)), hsl(var(--gradient-orange)));
+  /* Text gradients */
+  .text-gradient-neon {
+    background: linear-gradient(135deg, hsl(187 100% 50%), hsl(82 29% 66%));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  .text-gradient-orange-blue {
-    background: linear-gradient(135deg, hsl(var(--gradient-orange)), hsl(var(--gradient-blue)));
+  .text-gradient-blue-olive {
+    background: linear-gradient(135deg, hsl(187 100% 45%), hsl(82 35% 55%));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-  }
-
-  /* Glow effects */
-  .glow-red {
-    box-shadow: 0 0 40px hsl(var(--shadow-glow-red));
-  }
-
-  .glow-orange {
-    box-shadow: 0 0 40px hsl(var(--shadow-glow-orange));
-  }
-
-  .glow-blue {
-    box-shadow: 0 0 40px hsl(var(--shadow-glow-blue));
-  }
-
-  /* Elite card styles */
-  .elite-card {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    transition: var(--transition-smooth);
-  }
-
-  .elite-card:hover {
-    border-color: hsl(var(--primary));
-    box-shadow: 0 8px 32px hsl(var(--shadow-glow-red));
-    transform: translateY(-4px);
   }
 }
 
@@ -135,7 +99,6 @@ All colors MUST be HSL.
     font-size: 16px;
   }
 
-  /* Mobile typography scale - smaller base font */
   @media (max-width: 768px) {
     html {
       font-size: 14px;
@@ -144,5 +107,6 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
   }
 }

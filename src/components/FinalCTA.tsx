@@ -3,27 +3,24 @@ import { ArrowRight } from "lucide-react";
 
 const FinalCTA = () => {
   return (
-    <section className="py-32 relative overflow-hidden">
-      {/* Strong gradient background */}
-      <div className="absolute inset-0 gradient-red-orange" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
-      
+    <section className="py-20 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-up">
-          <h2 className="text-5xl md:text-6xl font-bold text-white">
+          <h2 className="text-4xl md:text-6xl font-bold text-foreground">
             Ready to Add a New Income Stream?
           </h2>
-          
-          <p className="text-xl text-white/90 leading-relaxed">
-            Book a 15-minute call to see if your audience, niche, and content 
-            qualify for an Optima partnership.
+
+          <p className="text-xl text-muted-foreground leading-relaxed">
+            Book a 15-minute call to see if your audience, niche, and content
+            qualify for an Esther partnership.
           </p>
-          
-          <Button 
-            variant="elite-outline" 
+
+          <Button
             size="xl"
             onClick={() => window.location.href = '/booking'}
-            className="group border-white text-white hover:bg-white hover:text-background shadow-2xl"
+            className="group bg-primary text-primary-foreground font-bold hover:shadow-[0_0_30px_hsl(187_100%_50%/0.3)] hover:scale-105 transition-all duration-300"
           >
             Book a Call
             <ArrowRight className="transition-transform group-hover:translate-x-1" />
