@@ -13,6 +13,7 @@ import ChooseTime from "./pages/ChooseTime";
 import Reschedule from "./pages/Reschedule";
 import Dashboard from "./pages/Dashboard";
 import AdminLogin from "./pages/AdminLogin";
+import ViewMyPlan from "./pages/ViewMyPlan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/booking" element={<Booking />} />
           <Route path="/choose-time" element={<ChooseTime />} />
           <Route path="/reschedule" element={<Reschedule />} />
+          <Route path="/view-my-plan" element={<ViewMyPlan />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/dashboard" element={<Dashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
