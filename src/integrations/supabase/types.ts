@@ -106,6 +106,39 @@ export type Database = {
         }
         Relationships: []
       }
+      client_plans: {
+        Row: {
+          access_code: string
+          client_email: string | null
+          client_name: string
+          created_at: string
+          id: string
+          plan_data: Json | null
+          raw_plan_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_code: string
+          client_email?: string | null
+          client_name: string
+          created_at?: string
+          id?: string
+          plan_data?: Json | null
+          raw_plan_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_code?: string
+          client_email?: string | null
+          client_name?: string
+          created_at?: string
+          id?: string
+          plan_data?: Json | null
+          raw_plan_text?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
