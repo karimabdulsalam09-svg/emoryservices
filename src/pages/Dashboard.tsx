@@ -13,8 +13,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { 
   Users, TrendingUp, Clock, Target, Edit, Trash2, Download, RefreshCw, LogOut, 
-  CheckCircle, XCircle, CalendarIcon, Plus, X 
+  CheckCircle, XCircle, CalendarIcon, Plus, X, FileText 
 } from "lucide-react";
+import DashboardPlans from "@/components/plan/DashboardPlans";
 import { toast } from "sonner";
 import { User, Session } from "@supabase/supabase-js";
 import { format } from "date-fns";
