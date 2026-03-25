@@ -7,6 +7,7 @@ const navLinks = [
   { label: "What We Do", href: "#what-we-do" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "FAQ", href: "#faq" },
+  { label: "View My Plan", href: "/view-my-plan", isRoute: true },
   { label: "Monetisation Gameplan", href: "/monetisation-gameplan", isRoute: true },
   { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "About", href: "/about", isRoute: true },
