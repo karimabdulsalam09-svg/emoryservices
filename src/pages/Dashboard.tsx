@@ -821,6 +821,8 @@ const Dashboard = () => {
             )}
           </DialogContent>
         </Dialog>
+        </>
+        )}
       </div>
     </div>
   );
