@@ -13,8 +13,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { 
   Users, TrendingUp, Clock, Target, Edit, Trash2, Download, RefreshCw, LogOut, 
-  CheckCircle, XCircle, CalendarIcon, Plus, X 
+  CheckCircle, XCircle, CalendarIcon, Plus, X, FileText 
 } from "lucide-react";
+import DashboardPlans from "@/components/plan/DashboardPlans";
 import { toast } from "sonner";
 import { User, Session } from "@supabase/supabase-js";
 import { format } from "date-fns";
@@ -76,6 +77,7 @@ const Dashboard = () => {
   const [newSlotDate, setNewSlotDate] = useState<Date | undefined>();
   const [newSlotStartTime, setNewSlotStartTime] = useState("");
   const [newSlotEndTime, setNewSlotEndTime] = useState("");
+  const [activeTab, setActiveTab] = useState<"bookings" | "plans">("bookings");
 
   const timeOptions = [
     "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM",
@@ -425,16 +427,36 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-gradient-red-orange">Booking Dashboard</h1>
-            <p className="text-muted-foreground">Manage all booking requests and confirmations</p>
+            <h1 className="text-4xl font-bold text-gradient-red-orange">Dashboard</h1>
+            <div className="flex gap-2">
+              <Button
+                variant={activeTab === "bookings" ? "default" : "outline"}
+                onClick={() => setActiveTab("bookings")}
+                className="gap-2"
+              >
+                <Users className="w-4 h-4" /> Bookings
+              </Button>
+              <Button
+                variant={activeTab === "plans" ? "default" : "outline"}
+                onClick={() => setActiveTab("plans")}
+                className="gap-2"
+              >
+                <FileText className="w-4 h-4" /> Client Plans
+              </Button>
+            </div>
           </div>
           <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="w-4 h-4" />
             Logout
           </Button>
         </div>
+
+        {activeTab === "plans" ? (
+          <DashboardPlans />
+        ) : (
+        <>
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -799,6 +821,8 @@ const Dashboard = () => {
             )}
           </DialogContent>
         </Dialog>
+        </>
+        )}
       </div>
     </div>
   );
