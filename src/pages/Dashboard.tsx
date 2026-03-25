@@ -77,6 +77,7 @@ const Dashboard = () => {
   const [newSlotDate, setNewSlotDate] = useState<Date | undefined>();
   const [newSlotStartTime, setNewSlotStartTime] = useState("");
   const [newSlotEndTime, setNewSlotEndTime] = useState("");
+  const [activeTab, setActiveTab] = useState<"bookings" | "plans">("bookings");
 
   const timeOptions = [
     "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM",
