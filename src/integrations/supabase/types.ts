@@ -112,6 +112,7 @@ export type Database = {
           client_email: string | null
           client_name: string
           created_at: string
+          frontend_plan_data: Json | null
           id: string
           plan_data: Json | null
           raw_plan_text: string | null
@@ -122,6 +123,7 @@ export type Database = {
           client_email?: string | null
           client_name: string
           created_at?: string
+          frontend_plan_data?: Json | null
           id?: string
           plan_data?: Json | null
           raw_plan_text?: string | null
@@ -132,6 +134,7 @@ export type Database = {
           client_email?: string | null
           client_name?: string
           created_at?: string
+          frontend_plan_data?: Json | null
           id?: string
           plan_data?: Json | null
           raw_plan_text?: string | null
