@@ -13,50 +13,41 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    const schemaDescription = `Return ONLY valid JSON — no markdown, no code fences. The output must be a JSON array of day objects with this exact structure:
+[
+  {
+    "day": 1,
+    "title": "Short title for the day",
+    "summary": "Brief 1-2 sentence overview",
+    "tasks": [
+      {
+        "title": "Task name",
+        "description": "What to do",
+        "role": "operator"
+      },
+      {
+        "title": "Task name",
+        "description": "What to do",
+        "role": "creator"
+      }
+    ],
+    "contentSlot": false,
+    "tip": "Optional pro tip for the day"
+  }
+]
+Valid roles: "operator" (the strategist/builder), "creator" (the client/talent).
+Set "contentSlot": true for days that involve scripts, recording, or content creation (typically days 3-9).`;
+
     let systemPrompt: string;
     let userPrompt: string;
 
     if (action === "edit") {
-      systemPrompt = `You are a digital product launch plan editor. You have an existing structured plan and need to apply edits based on instructions. Return ONLY valid JSON — no markdown, no code fences. The output must be a JSON array of day objects with this exact structure:
-[
-  {
-    "day": 1,
-    "title": "Short title for the day",
-    "summary": "Brief 1-2 sentence overview",
-    "tasks": [
-      {
-        "title": "Task name",
-        "description": "What to do",
-        "type": "task|milestone|deliverable",
-        "icon": "emoji"
-      }
-    ],
-    "tip": "Optional pro tip for the day"
-  }
-]
-Valid types: "task" (action item), "milestone" (key achievement), "deliverable" (tangible output).
+      systemPrompt = `You are a digital product launch plan editor. You have an existing structured plan and need to apply edits based on instructions. ${schemaDescription}
 Keep the same structure. Apply only the requested changes.`;
       userPrompt = `Existing plan:\n${JSON.stringify(existingPlan)}\n\nEdit instructions: ${editInstructions}`;
     } else {
-      systemPrompt = `You are a digital product launch strategist. Take raw plan text and structure it into a clear 14-day launch plan. Return ONLY valid JSON — no markdown, no code fences. The output must be a JSON array of day objects with this exact structure:
-[
-  {
-    "day": 1,
-    "title": "Short title for the day",
-    "summary": "Brief 1-2 sentence overview",
-    "tasks": [
-      {
-        "title": "Task name",
-        "description": "What to do",
-        "type": "task|milestone|deliverable",
-        "icon": "emoji"
-      }
-    ],
-    "tip": "Optional pro tip for the day"
-  }
-]
-Valid types: "task" (action item), "milestone" (key achievement), "deliverable" (tangible output).
-Each day should have 2-5 tasks. Use relevant emojis for icons. Make it actionable and inspiring.
+      systemPrompt = `You are a digital product launch strategist. Take raw plan text and structure it into a clear 14-day launch plan split between an Operator (strategist/builder) and Creator (client/talent). ${schemaDescription}
+Each day should have tasks for both operator and creator. Make it actionable and execution-focused.
 If the input doesn't specify 14 days, intelligently distribute the content across 14 days.`;
       userPrompt = rawPlan;
     }
@@ -95,13 +86,10 @@ If the input doesn't specify 14 days, intelligently distribute the content acros
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
-    // Parse the JSON from the AI response
     let planData;
     try {
-      // Try direct parse first
       planData = JSON.parse(content);
     } catch {
-      // Try extracting JSON from markdown code fences
       const match = content.match(/```(?:json)?\s*([\s\S]*?)```/);
       if (match) {
         planData = JSON.parse(match[1].trim());
