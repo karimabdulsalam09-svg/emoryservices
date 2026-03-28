@@ -12,8 +12,7 @@ import { toast } from "sonner";
 export interface PlanTask {
   title: string;
   description: string;
-  type: "task" | "milestone" | "deliverable";
-  icon: string;
+  role: "operator" | "creator";
 }
 
 export interface PlanDay {
@@ -21,6 +20,7 @@ export interface PlanDay {
   title: string;
   summary: string;
   tasks: PlanTask[];
+  contentSlot?: boolean;
   tip?: string;
 }
 
