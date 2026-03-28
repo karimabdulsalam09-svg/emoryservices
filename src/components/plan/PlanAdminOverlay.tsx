@@ -46,6 +46,7 @@ const PlanAdminOverlay = ({ onClose, currentPlan, onPlanUpdated }: PlanAdminOver
       setAllPlans(data.map(d => ({
         ...d,
         plan_data: (d.plan_data as unknown as PlanDay[]) || [],
+        frontend_plan_data: (d.frontend_plan_data as unknown as import("@/pages/ViewMyPlan").FrontEndPlanDay[]) || [],
       })));
     }
   };

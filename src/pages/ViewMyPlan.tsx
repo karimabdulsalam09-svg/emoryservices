@@ -88,6 +88,7 @@ const ViewMyPlan = () => {
     const typedPlan: ClientPlan = {
       ...data,
       plan_data: (data.plan_data as unknown as PlanDay[]) || [],
+      frontend_plan_data: (data.frontend_plan_data as unknown as FrontEndPlanDay[]) || [],
     };
     setPlan(typedPlan);
     setLoading(false);
