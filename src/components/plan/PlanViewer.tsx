@@ -1,7 +1,9 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ClientPlan, PlanDay, PlanTask } from "@/pages/ViewMyPlan";
-import { Settings, Palette, FileText } from "lucide-react";
+import { Settings, Palette, FileText, Rocket } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import FrontEndPlanViewer from "./FrontEndPlanViewer";
 
 const OperatorTasks = ({ tasks }: { tasks: PlanTask[] }) => (
   <div className="flex-1 space-y-3">
