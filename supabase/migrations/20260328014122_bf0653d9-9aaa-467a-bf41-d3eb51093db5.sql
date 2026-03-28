@@ -1,0 +1,1 @@
+ALTER TABLE public.client_plans ADD COLUMN frontend_plan_data jsonb DEFAULT '[]'::jsonb;

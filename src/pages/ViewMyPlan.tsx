@@ -24,6 +24,17 @@ export interface PlanDay {
   tip?: string;
 }
 
+export interface FrontEndPlanDay {
+  day: number;
+  title: string;
+  objective: string;
+  whyItMatters: string;
+  actions: string[];
+  psychologicalLever: string;
+  expectedOutcome: string;
+  contentIdeas: string[];
+}
+
 export interface ClientPlan {
   id: string;
   client_name: string;
@@ -31,6 +42,7 @@ export interface ClientPlan {
   access_code: string;
   raw_plan_text: string | null;
   plan_data: PlanDay[];
+  frontend_plan_data: FrontEndPlanDay[];
   created_at: string;
   updated_at: string;
 }
@@ -76,6 +88,7 @@ const ViewMyPlan = () => {
     const typedPlan: ClientPlan = {
       ...data,
       plan_data: (data.plan_data as unknown as PlanDay[]) || [],
+      frontend_plan_data: (data.frontend_plan_data as unknown as FrontEndPlanDay[]) || [],
     };
     setPlan(typedPlan);
     setLoading(false);
