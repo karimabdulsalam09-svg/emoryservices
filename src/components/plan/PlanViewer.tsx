@@ -5,11 +5,11 @@ import { Settings, Palette, FileText } from "lucide-react";
 
 const OperatorTasks = ({ tasks }: { tasks: PlanTask[] }) => (
   <div className="flex-1 space-y-3">
-    <div className="flex items-center gap-2 mb-3">
-      <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center">
-        <Settings className="w-4 h-4 text-primary" />
+    <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+      <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center">
+        <Settings className="w-3 h-3 md:w-4 md:h-4 text-primary" />
       </div>
-      <h4 className="font-bold text-sm uppercase tracking-wider text-primary">Operator Side</h4>
+      <h4 className="font-bold text-xs md:text-sm uppercase tracking-wider text-primary">Operator Side</h4>
     </div>
     {tasks.map((task, i) => (
       <motion.div
@@ -18,10 +18,10 @@ const OperatorTasks = ({ tasks }: { tasks: PlanTask[] }) => (
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: "0px 0px -33% 0px" }}
         transition={{ duration: 0.4, delay: 0.1 * i }}
-        className="p-3 rounded-xl bg-primary/5 border border-primary/20"
+        className="p-2.5 md:p-3 rounded-xl bg-primary/5 border border-primary/20"
       >
-        <p className="font-semibold text-sm mb-1">{task.title}</p>
-        <p className="text-xs text-muted-foreground leading-relaxed">{task.description}</p>
+        <p className="font-semibold text-xs md:text-sm mb-0.5 md:mb-1">{task.title}</p>
+        <p className="text-[11px] md:text-xs text-muted-foreground leading-relaxed">{task.description}</p>
       </motion.div>
     ))}
   </div>
@@ -29,11 +29,11 @@ const OperatorTasks = ({ tasks }: { tasks: PlanTask[] }) => (
 
 const CreatorTasks = ({ tasks }: { tasks: PlanTask[] }) => (
   <div className="flex-1 space-y-3">
-    <div className="flex items-center gap-2 mb-3">
-      <div className="w-8 h-8 rounded-lg bg-secondary/20 border border-secondary/40 flex items-center justify-center">
-        <Palette className="w-4 h-4 text-secondary-foreground" />
+    <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+      <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-secondary/20 border border-secondary/40 flex items-center justify-center">
+        <Palette className="w-3 h-3 md:w-4 md:h-4 text-secondary-foreground" />
       </div>
-      <h4 className="font-bold text-sm uppercase tracking-wider text-secondary-foreground">Creator Side</h4>
+      <h4 className="font-bold text-xs md:text-sm uppercase tracking-wider text-secondary-foreground">Creator Side</h4>
     </div>
     {tasks.map((task, i) => (
       <motion.div
@@ -42,10 +42,10 @@ const CreatorTasks = ({ tasks }: { tasks: PlanTask[] }) => (
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: "0px 0px -33% 0px" }}
         transition={{ duration: 0.4, delay: 0.1 * i }}
-        className="p-3 rounded-xl bg-secondary/10 border border-secondary/25"
+        className="p-2.5 md:p-3 rounded-xl bg-secondary/10 border border-secondary/25"
       >
-        <p className="font-semibold text-sm mb-1">{task.title}</p>
-        <p className="text-xs text-muted-foreground leading-relaxed">{task.description}</p>
+        <p className="font-semibold text-xs md:text-sm mb-0.5 md:mb-1">{task.title}</p>
+        <p className="text-[11px] md:text-xs text-muted-foreground leading-relaxed">{task.description}</p>
       </motion.div>
     ))}
   </div>
@@ -57,7 +57,7 @@ const ContentSlot = () => (
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true, margin: "0px 0px -33% 0px" }}
     transition={{ duration: 0.4, delay: 0.3 }}
-    className="mt-4 p-4 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex items-center gap-3"
+    className="mt-3 md:mt-4 p-3 md:p-4 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex items-center gap-2 md:gap-3"
   >
     <FileText className="w-4 h-4 md:w-5 md:h-5 text-primary shrink-0" />
     <div>
@@ -92,18 +92,18 @@ const DayCard = ({ day, index }: { day: PlanDay; index: number }) => {
             whileInView={{ scale: 1 }}
             viewport={{ once: true, margin: "0px 0px -33% 0px" }}
             transition={{ duration: 0.4, delay: 0.15, type: "spring" }}
-            className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center z-10 relative"
+            className="w-11 h-11 md:w-14 md:h-14 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center z-10 relative"
           >
-            <span className="text-lg font-bold text-primary">{day.day}</span>
+            <span className="text-base md:text-lg font-bold text-primary">{day.day}</span>
           </motion.div>
         </div>
 
-        <div className="glass-card p-6 md:p-8 max-w-3xl mx-auto">
-          <h3 className="text-xl md:text-2xl font-bold mb-1 text-center">{day.title}</h3>
-          <p className="text-muted-foreground text-center mb-6 text-sm">{day.summary}</p>
+        <div className="glass-card p-4 md:p-8 max-w-3xl mx-auto">
+          <h3 className="text-lg md:text-2xl font-bold mb-1 text-center">{day.title}</h3>
+          <p className="text-muted-foreground text-center mb-4 md:mb-6 text-xs md:text-sm">{day.summary}</p>
 
           {/* Two-column split */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {operatorTasks.length > 0 && <OperatorTasks tasks={operatorTasks} />}
             {creatorTasks.length > 0 && <CreatorTasks tasks={creatorTasks} />}
           </div>
