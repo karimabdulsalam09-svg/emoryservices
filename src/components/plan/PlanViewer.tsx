@@ -59,10 +59,10 @@ const ContentSlot = () => (
     transition={{ duration: 0.4, delay: 0.3 }}
     className="mt-4 p-4 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex items-center gap-3"
   >
-    <FileText className="w-5 h-5 text-primary shrink-0" />
+    <FileText className="w-4 h-4 md:w-5 md:h-5 text-primary shrink-0" />
     <div>
-      <p className="font-semibold text-sm text-primary">Add Script / Content Here</p>
-      <p className="text-xs text-muted-foreground">This section is reserved for scripts, notes, or content to be added later.</p>
+      <p className="font-semibold text-xs md:text-sm text-primary">Content Board — Coming Soon</p>
+      <p className="text-[11px] md:text-xs text-muted-foreground">A full board including scripts, video ideas, and structure will be prepared and sent to Aaron.</p>
     </div>
   </motion.div>
 );
