@@ -181,11 +181,12 @@ const Booking = () => {
     
     if (error || !insertedBooking) {
       console.error('Error saving booking:', error);
+      setIsSubmitting(false);
       toast.error("There was an error submitting your booking. Please try again.");
       return;
     }
 
-    // Send booking notification to admin
+    // Send booking notification to admin + confirmation to the customer
     try {
       await supabase.functions.invoke('send-booking-email', {
         body: {
@@ -194,7 +195,8 @@ const Booking = () => {
           name: validatedData.name,
           bookingToken: insertedBooking.booking_token,
           requestedDate: format(selectedDate, 'EEEE, MMMM d, yyyy'),
-          requestedTime: selectedTime,
+          requestedTime: `${selectedTime} UK time`,
+          localTime: selectedSlot ? `${selectedSlot.localLabel}${selectedSlot.localDayNote} (${localTimeZone})` : undefined,
         }
       });
       console.log('Booking notification sent successfully');
