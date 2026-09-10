@@ -142,6 +142,7 @@ const Booking = () => {
     }
     
     const validatedData = validationResult.data;
+    setIsSubmitting(true);
     
     // Get bonus tier from cookie
     const getBonusTier = () => {
