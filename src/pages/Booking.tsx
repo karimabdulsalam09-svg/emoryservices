@@ -375,19 +375,23 @@ const Booking = () => {
           {/* Preferred Time */}
           <div className="space-y-2">
             <Label>Preferred Time *</Label>
-            <Select onValueChange={setSelectedTime} value={selectedTime}>
+            <Select onValueChange={setSelectedTime} value={selectedTime} disabled={!selectedDate}>
               <SelectTrigger className="bg-background/50">
                 <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                <SelectValue placeholder="Select your preferred time" />
+                <SelectValue placeholder={selectedDate ? "Select your preferred time" : "Pick a date first"} />
               </SelectTrigger>
               <SelectContent>
-                {timeSlots.map((time) => (
-                  <SelectItem key={time} value={time}>
-                    {time}
+                {availableSlots.map((slot) => (
+                  <SelectItem key={slot.value} value={slot.value}>
+                    {slot.localLabel} your time{slot.localDayNote} · {slot.ukLabel} UK
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Times shown in your timezone ({localTimeZone}) alongside UK time. Available Mon–Tue 3pm–11pm, Wed–Fri
+              5pm–12am, Sat–Sun 10am–10pm UK time.
+            </p>
           </div>
 
           {/* Holdback */}
