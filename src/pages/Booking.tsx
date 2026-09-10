@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,13 +13,88 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-const timeSlots = [
-  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-  "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM",
-  "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM",
-  "9:00 PM", "9:30 PM", "10:00 PM"
-];
+// Availability in UK time (Europe/London), by weekday (0 = Sunday)
+const UK_AVAILABILITY: Record<number, { start: number; end: number } | null> = {
+  0: { start: 10, end: 22 }, // Sunday
+  1: { start: 15, end: 23 }, // Monday
+  2: { start: 15, end: 23 }, // Tuesday
+  3: { start: 17, end: 24 }, // Wednesday
+  4: { start: 17, end: 24 }, // Thursday
+  5: { start: 17, end: 24 }, // Friday
+  6: { start: 10, end: 22 }, // Saturday
+};
+
+const londonOffsetMinutes = (utcMs: number) => {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+      .formatToParts(new Date(utcMs))
+      .map((p) => [p.type, p.value])
+  ) as Record<string, string>;
+  const asUTC = Date.UTC(
+    Number(parts.year),
+    Number(parts.month) - 1,
+    Number(parts.day),
+    Number(parts.hour) % 24,
+    Number(parts.minute)
+  );
+  return (asUTC - utcMs) / 60000;
+};
+
+// Build a real Date for a given UK wall-clock time on a given calendar day
+const ukWallClockToDate = (day: Date, hour: number, minute: number) => {
+  const guess = Date.UTC(day.getFullYear(), day.getMonth(), day.getDate(), hour, minute);
+  let ts = guess - londonOffsetMinutes(guess) * 60000;
+  ts = guess - londonOffsetMinutes(ts) * 60000;
+  return new Date(ts);
+};
+
+const fmtTime = (d: Date, timeZone?: string) =>
+  new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    ...(timeZone ? { timeZone } : {}),
+  }).format(d);
+
+const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const isDayAvailable = (date: Date) => !!UK_AVAILABILITY[date.getDay()];
+
+interface Slot {
+  value: string; // UK time label, stored in DB
+  ukLabel: string;
+  localLabel: string;
+  localDayNote: string;
+}
+
+const buildSlots = (date: Date): Slot[] => {
+  const window = UK_AVAILABILITY[date.getDay()];
+  if (!window) return [];
+  const slots: Slot[] = [];
+  for (let m = window.start * 60; m < window.end * 60; m += 30) {
+    const d = ukWallClockToDate(date, Math.floor(m / 60), m % 60);
+    if (d.getTime() < Date.now()) continue;
+    const ukLabel = fmtTime(d, "Europe/London");
+    const localLabel = fmtTime(d);
+    const ukDay = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", day: "2-digit" }).format(d);
+    const localDay = new Intl.DateTimeFormat("en-GB", { day: "2-digit" }).format(d);
+    slots.push({
+      value: ukLabel,
+      ukLabel,
+      localLabel,
+      localDayNote: ukDay === localDay ? "" : " (next day)",
+    });
+  }
+  return slots;
+};
 
 // Schema validation for booking form
 const bookingSchema = z.object({
@@ -45,6 +120,10 @@ const Booking = () => {
     productType: "",
     holdback: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const availableSlots = useMemo(() => (selectedDate ? buildSlots(selectedDate) : []), [selectedDate]);
+  const selectedSlot = availableSlots.find((s) => s.value === selectedTime);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +142,7 @@ const Booking = () => {
     }
     
     const validatedData = validationResult.data;
+    setIsSubmitting(true);
     
     // Get bonus tier from cookie
     const getBonusTier = () => {
@@ -101,11 +181,12 @@ const Booking = () => {
     
     if (error || !insertedBooking) {
       console.error('Error saving booking:', error);
+      setIsSubmitting(false);
       toast.error("There was an error submitting your booking. Please try again.");
       return;
     }
 
-    // Send booking notification to admin
+    // Send booking notification to admin + confirmation to the customer
     try {
       await supabase.functions.invoke('send-booking-email', {
         body: {
@@ -114,7 +195,8 @@ const Booking = () => {
           name: validatedData.name,
           bookingToken: insertedBooking.booking_token,
           requestedDate: format(selectedDate, 'EEEE, MMMM d, yyyy'),
-          requestedTime: selectedTime,
+          requestedTime: `${selectedTime} UK time`,
+          localTime: selectedSlot ? `${selectedSlot.localLabel}${selectedSlot.localDayNote} (${localTimeZone})` : undefined,
         }
       });
       console.log('Booking notification sent successfully');
@@ -281,8 +363,15 @@ const Booking = () => {
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={(date) => date < new Date() || date > new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+                  onSelect={(d) => {
+                    setSelectedDate(d);
+                    setSelectedTime("");
+                  }}
+                  disabled={(date) =>
+                    date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                    date > new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) ||
+                    !isDayAvailable(date)
+                  }
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
                 />
@@ -293,19 +382,23 @@ const Booking = () => {
           {/* Preferred Time */}
           <div className="space-y-2">
             <Label>Preferred Time *</Label>
-            <Select onValueChange={setSelectedTime} value={selectedTime}>
+            <Select onValueChange={setSelectedTime} value={selectedTime} disabled={!selectedDate}>
               <SelectTrigger className="bg-background/50">
                 <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                <SelectValue placeholder="Select your preferred time" />
+                <SelectValue placeholder={selectedDate ? "Select your preferred time" : "Pick a date first"} />
               </SelectTrigger>
               <SelectContent>
-                {timeSlots.map((time) => (
-                  <SelectItem key={time} value={time}>
-                    {time}
+                {availableSlots.map((slot) => (
+                  <SelectItem key={slot.value} value={slot.value}>
+                    {slot.localLabel} your time{slot.localDayNote} · {slot.ukLabel} UK
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Times shown in your timezone ({localTimeZone}) alongside UK time. Available Mon–Tue 3pm–11pm, Wed–Fri
+              5pm–12am, Sat–Sun 10am–10pm UK time.
+            </p>
           </div>
 
           {/* Holdback */}
@@ -321,13 +414,24 @@ const Booking = () => {
             />
           </div>
 
+          {selectedSlot && (
+            <div className="rounded-xl border border-border bg-background/50 p-4 text-sm">
+              <p className="font-medium">Your requested slot</p>
+              <p className="text-muted-foreground">
+                {selectedSlot.localLabel}{selectedSlot.localDayNote} your time ({localTimeZone})
+              </p>
+              <p className="text-muted-foreground">{selectedSlot.ukLabel} UK time</p>
+            </div>
+          )}
+
           <Button 
             type="submit" 
             variant="gradient" 
             size="lg" 
             className="w-full"
+            disabled={isSubmitting}
           >
-            Submit Booking Request
+            {isSubmitting ? "Submitting..." : "Submit Booking Request"}
           </Button>
 
           <p className="text-sm text-muted-foreground text-center">
