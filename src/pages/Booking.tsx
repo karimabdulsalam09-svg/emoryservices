@@ -120,6 +120,10 @@ const Booking = () => {
     productType: "",
     holdback: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const availableSlots = useMemo(() => (selectedDate ? buildSlots(selectedDate) : []), [selectedDate]);
+  const selectedSlot = availableSlots.find((s) => s.value === selectedTime);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
