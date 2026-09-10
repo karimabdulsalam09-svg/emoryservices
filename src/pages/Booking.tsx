@@ -356,8 +356,15 @@ const Booking = () => {
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={(date) => date < new Date() || date > new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+                  onSelect={(d) => {
+                    setSelectedDate(d);
+                    setSelectedTime("");
+                  }}
+                  disabled={(date) =>
+                    date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                    date > new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) ||
+                    !isDayAvailable(date)
+                  }
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
                 />
