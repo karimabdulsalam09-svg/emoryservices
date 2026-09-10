@@ -64,15 +64,11 @@ const fmtTime = (d: Date, timeZone?: string) =>
     ...(timeZone ? { timeZone } : {}),
   }).format(d);
 
-const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
 const isDayAvailable = (date: Date) => !!UK_AVAILABILITY[date.getDay()];
 
 interface Slot {
   value: string; // UK time label, stored in DB
   ukLabel: string;
-  localLabel: string;
-  localDayNote: string;
 }
 
 const buildSlots = (date: Date): Slot[] => {
@@ -83,15 +79,7 @@ const buildSlots = (date: Date): Slot[] => {
     const d = ukWallClockToDate(date, Math.floor(m / 60), m % 60);
     if (d.getTime() < Date.now()) continue;
     const ukLabel = fmtTime(d, "Europe/London");
-    const localLabel = fmtTime(d);
-    const ukDay = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", day: "2-digit" }).format(d);
-    const localDay = new Intl.DateTimeFormat("en-GB", { day: "2-digit" }).format(d);
-    slots.push({
-      value: ukLabel,
-      ukLabel,
-      localLabel,
-      localDayNote: ukDay === localDay ? "" : " (next day)",
-    });
+    slots.push({ value: ukLabel, ukLabel });
   }
   return slots;
 };
