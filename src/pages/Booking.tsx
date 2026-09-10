@@ -414,13 +414,24 @@ const Booking = () => {
             />
           </div>
 
+          {selectedSlot && (
+            <div className="rounded-xl border border-border bg-background/50 p-4 text-sm">
+              <p className="font-medium">Your requested slot</p>
+              <p className="text-muted-foreground">
+                {selectedSlot.localLabel}{selectedSlot.localDayNote} your time ({localTimeZone})
+              </p>
+              <p className="text-muted-foreground">{selectedSlot.ukLabel} UK time</p>
+            </div>
+          )}
+
           <Button 
             type="submit" 
             variant="gradient" 
             size="lg" 
             className="w-full"
+            disabled={isSubmitting}
           >
-            Submit Booking Request
+            {isSubmitting ? "Submitting..." : "Submit Booking Request"}
           </Button>
 
           <p className="text-sm text-muted-foreground text-center">
