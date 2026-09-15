@@ -401,25 +401,26 @@ const Booking = () => {
             />
           </div>
 
-          {selectedSlot && (
-            <div className="rounded-xl border border-border bg-background/50 p-4 text-sm">
-              <p className="font-medium">Your requested slot</p>
+          {selectedSlot && selectedDate && (
+            <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 text-sm">
+              <p className="font-semibold">Your requested slot</p>
               <p className="text-muted-foreground">
-                {selectedSlot.localLabel}{selectedSlot.localDayNote} your time ({localTimeZone})
+                {format(selectedDate, "EEEE, MMMM d")} · {selectedSlot.ukLabel} UK time
               </p>
-              <p className="text-muted-foreground">{selectedSlot.ukLabel} UK time</p>
             </div>
           )}
 
-          <Button 
-            type="submit" 
-            variant="gradient" 
-            size="lg" 
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Submit Booking Request"}
-          </Button>
+          <div className="sticky bottom-4 z-20 pt-2">
+            <Button
+              type="submit"
+              variant="gradient"
+              size="lg"
+              className="w-full h-14 text-base font-bold rounded-xl shadow-2xl shadow-primary/40 ring-2 ring-primary/30 transition-transform hover:scale-[1.02]"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Booking Request →"}
+            </Button>
+          </div>
 
           <p className="text-sm text-muted-foreground text-center">
             By submitting this form, you agree to be contacted about your booking.
