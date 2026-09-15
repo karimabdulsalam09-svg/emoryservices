@@ -12,7 +12,7 @@ const services = [
   { icon: Megaphone, title: "Launch Content", description: "Scripts & posts for launch day" },
 ];
 
-const WhatEstherBuilds = () => {
+const WhatEmoryBuilds = () => {
   return (
     <section className="py-20 relative">
       <div className="container mx-auto px-6 relative z-10">
@@ -24,7 +24,7 @@ const WhatEstherBuilds = () => {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            What Esther Builds <span className="text-gradient-neon">For You</span>
+            What Emory Builds <span className="text-gradient-neon">For You</span>
           </h2>
         </motion.div>
 
@@ -70,4 +70,4 @@ const WhatEstherBuilds = () => {
   );
 };
 
-export default WhatEstherBuilds;
+export default WhatEmoryBuilds;

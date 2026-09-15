@@ -9,7 +9,7 @@ const WorkflowDiagram = () => {
       <div className="container mx-auto px-6 relative z-10">
         <motion.div className="text-center mb-16" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={vp} transition={{ duration: 0.6 }}>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            The Esther <span className="text-gradient-neon">Workflow</span>
+            The Emory <span className="text-gradient-neon">Workflow</span>
           </h2>
         </motion.div>
 

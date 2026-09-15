@@ -21,7 +21,7 @@ const FinalCTA = () => {
 
           <p className="text-xl text-muted-foreground leading-relaxed">
             Book a 15-minute call to see if your audience, niche, and content
-            qualify for an Esther partnership.
+            qualify for an Emory partnership.
           </p>
 
           <Button

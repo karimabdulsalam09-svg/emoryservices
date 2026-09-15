@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import FeatureCards from "@/components/FeatureCards";
-import WhatEstherBuilds from "@/components/WhatEstherBuilds";
+import WhatEmoryBuilds from "@/components/WhatEmoryBuilds";
 import HowItWorks from "@/components/HowItWorks";
 import WhyCreatorsFail from "@/components/WhyCreatorsFail";
 import WorkflowDiagram from "@/components/WorkflowDiagram";
@@ -23,7 +23,7 @@ const Index = () => {
       <div className="relative z-10">
         <Hero />
         <FeatureCards />
-        <WhatEstherBuilds />
+        <WhatEmoryBuilds />
         <OwnWebsite />
         <HowItWorks />
         <WhyCreatorsFail />

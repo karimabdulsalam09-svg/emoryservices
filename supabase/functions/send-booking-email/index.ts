@@ -52,7 +52,7 @@ const wrap = (title: string, body: string) => `<!DOCTYPE html><html><head>${base
   <div class="container">
     <div class="header"><h1>${title}</h1></div>
     <div class="content">${body}</div>
-    <div class="footer">Esther Booking System</div>
+    <div class="footer">Emory Booking System</div>
   </div></body></html>`;
 
 async function sendMail(to: string, subject: string, html: string) {
@@ -66,7 +66,7 @@ async function sendMail(to: string, subject: string, html: string) {
   });
   try {
     await client.send({
-      from: `Esther <${GMAIL_USER}>`,
+      from: `Emory <${GMAIL_USER}>`,
       to,
       subject,
       html,

@@ -159,7 +159,7 @@ const handler = async (req: Request): Promise<Response> => {
         <body>
           <div class="container">
             <div class="header">
-              <h1>🎯 New Esther Booking</h1>
+              <h1>🎯 New Emory Booking</h1>
             </div>
             <div class="content">
               <div class="info-block">
@@ -207,7 +207,7 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
             </div>
             <div class="footer">
-              Esther Booking System • Automated Notification
+              Emory Booking System • Automated Notification
             </div>
           </div>
         </body>
@@ -222,9 +222,9 @@ const handler = async (req: Request): Promise<Response> => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Esther Bookings <onboarding@resend.dev>',
+        from: 'Emory Bookings <onboarding@resend.dev>',
         to: ['karim.2009.gg@gmail.com'],
-        subject: `🎯 New Esther Booking: ${safeName} - ${safeNiche || "No Niche"}`,
+        subject: `🎯 New Emory Booking: ${safeName} - ${safeNiche || "No Niche"}`,
         html: emailHtml,
       }),
     });

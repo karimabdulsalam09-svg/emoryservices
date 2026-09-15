@@ -18,13 +18,13 @@ const steps = [
     icon: Video,
     number: "03",
     title: "Creator Records Minimal Content",
-    description: "1–3 short videos or posts. Esther builds the full product from it.",
+    description: "1–3 short videos or posts. Emory builds the full product from it.",
   },
   {
     icon: Rocket,
     number: "04",
     title: "Launch to Their Audience",
-    description: "Esther manages the full launch system and operations.",
+    description: "Emory manages the full launch system and operations.",
   },
 ];
 
