@@ -18,6 +18,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -25,19 +27,26 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navigate = (link: typeof navLinks[0]) => {
+  // Scroll to hash target after landing on the homepage
+  useEffect(() => {
+    if (location.pathname === "/" && location.hash) {
+      const el = document.querySelector(location.hash);
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 80);
+    }
+  }, [location]);
+
+  const handleNav = (link: typeof navLinks[0]) => {
     setMobileOpen(false);
     if ((link as any).isRoute) {
-      window.location.href = link.href;
-    } else {
-      // If we're not on the homepage, go there first
-      if (window.location.pathname !== "/") {
-        window.location.href = "/" + link.href;
-        return;
-      }
-      const el = document.querySelector(link.href);
-      el?.scrollIntoView({ behavior: "smooth" });
+      navigate(link.href);
+      return;
     }
+    if (location.pathname !== "/") {
+      navigate("/" + link.href);
+      return;
+    }
+    const el = document.querySelector(link.href);
+    el?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
