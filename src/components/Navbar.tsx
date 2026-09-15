@@ -57,7 +57,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
         {/* Logo */}
         <a href="/" className="text-xl md:text-2xl font-bold text-gradient-neon">
-          Esther
+          Emory
         </a>
 
         {/* Desktop links */}

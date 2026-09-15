@@ -184,7 +184,6 @@ const Booking = () => {
           bookingToken: insertedBooking.booking_token,
           requestedDate: format(selectedDate, 'EEEE, MMMM d, yyyy'),
           requestedTime: `${selectedTime} UK time`,
-          localTime: selectedSlot ? `${selectedSlot.localLabel}${selectedSlot.localDayNote} (${localTimeZone})` : undefined,
         }
       });
       console.log('Booking notification sent successfully');
@@ -378,14 +377,14 @@ const Booking = () => {
               <SelectContent>
                 {availableSlots.map((slot) => (
                   <SelectItem key={slot.value} value={slot.value}>
-                    {slot.localLabel} your time{slot.localDayNote} · {slot.ukLabel} UK
+                    {slot.ukLabel} UK time
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Times shown in your timezone ({localTimeZone}) alongside UK time. Available Mon–Tue 3pm–11pm, Wed–Fri
-              5pm–12am, Sat–Sun 10am–10pm UK time.
+              All times are shown in UK time (Europe/London) — please check how this converts to your own timezone.
+              Available Mon–Tue 3pm–11pm, Wed–Fri 5pm–12am, Sat–Sun 10am–10pm UK time.
             </p>
           </div>
 
@@ -402,25 +401,26 @@ const Booking = () => {
             />
           </div>
 
-          {selectedSlot && (
-            <div className="rounded-xl border border-border bg-background/50 p-4 text-sm">
-              <p className="font-medium">Your requested slot</p>
+          {selectedSlot && selectedDate && (
+            <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 text-sm">
+              <p className="font-semibold">Your requested slot</p>
               <p className="text-muted-foreground">
-                {selectedSlot.localLabel}{selectedSlot.localDayNote} your time ({localTimeZone})
+                {format(selectedDate, "EEEE, MMMM d")} · {selectedSlot.ukLabel} UK time
               </p>
-              <p className="text-muted-foreground">{selectedSlot.ukLabel} UK time</p>
             </div>
           )}
 
-          <Button 
-            type="submit" 
-            variant="gradient" 
-            size="lg" 
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Submit Booking Request"}
-          </Button>
+          <div className="sticky bottom-4 z-20 pt-2">
+            <Button
+              type="submit"
+              variant="gradient"
+              size="lg"
+              className="w-full h-14 text-base font-bold rounded-xl shadow-2xl shadow-primary/40 ring-2 ring-primary/30 transition-transform hover:scale-[1.02]"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Booking Request →"}
+            </Button>
+          </div>
 
           <p className="text-sm text-muted-foreground text-center">
             By submitting this form, you agree to be contacted about your booking.

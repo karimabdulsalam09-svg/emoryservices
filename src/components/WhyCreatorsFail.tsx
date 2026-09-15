@@ -48,7 +48,7 @@ const WhyCreatorsFail = () => {
 
             <div className="border-t border-border/40 pt-8 mt-8">
               <p className="text-xl font-bold text-center text-gradient-neon">
-                Esther removes all five obstacles instantly.
+                Emory removes all five obstacles instantly.
               </p>
             </div>
           </motion.div>

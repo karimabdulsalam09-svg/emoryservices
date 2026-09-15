@@ -29,7 +29,7 @@ const Pricing = () => {
 
               <motion.div className="flex items-start gap-4" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={vp} transition={{ duration: 0.5, delay: 0.65 }}>
                 <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center flex-shrink-0 mt-1"><Handshake className="w-5 h-5 text-secondary" /></div>
-                <div><h4 className="font-bold text-foreground text-lg">How does Esther earn?</h4><p className="text-muted-foreground">I only take a <span className="text-foreground font-semibold">negotiable commission</span> on revenue made. This means I only win when you win — keeping both sides safe.</p></div>
+                <div><h4 className="font-bold text-foreground text-lg">How does Emory earn?</h4><p className="text-muted-foreground">I only take a <span className="text-foreground font-semibold">negotiable commission</span> on revenue made. This means I only win when you win — keeping both sides safe.</p></div>
               </motion.div>
 
               <motion.div className="flex items-start gap-4" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={vp} transition={{ duration: 0.5, delay: 0.8 }}>

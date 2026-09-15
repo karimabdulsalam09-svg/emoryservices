@@ -19,7 +19,7 @@ const features = [
     icon: Handshake,
     title: "A Partnership, Not a Service Fee",
     description:
-      "No upfront cost. Esther takes a negotiable commission. Incentives aligned.",
+      "No upfront cost. Emory takes a negotiable commission. Incentives aligned.",
   },
 ];
 
@@ -37,7 +37,7 @@ const FeatureCards = () => {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            The <span className="text-gradient-neon">Esther</span> Difference
+            The <span className="text-gradient-neon">Emory</span> Difference
           </h2>
         </motion.div>
 

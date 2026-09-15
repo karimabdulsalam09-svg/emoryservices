@@ -16,7 +16,7 @@ const Hero = () => {
           </h1>
 
           <p className="text-sm md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2 md:px-0">
-            Esther builds your entire digital-product system using AI-accelerated workflows.
+            Emory builds your entire digital-product system using AI-accelerated workflows.
             You stay focused on content — we handle everything else.
           </p>
 
