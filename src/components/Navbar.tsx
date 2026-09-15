@@ -76,7 +76,7 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <button
                 key={link.href}
-                onClick={() => navigate(link)}
+                onClick={() => handleNav(link)}
                 className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
               >
                 {link.label}
@@ -98,7 +98,7 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <Button
             size="sm"
-            onClick={() => (window.location.href = "/booking")}
+            onClick={() => navigate("/booking")}
             className="bg-primary text-primary-foreground font-bold hover:shadow-[0_0_20px_hsl(187_100%_50%/0.3)] hover:scale-105 transition-all duration-300"
           >
             Book a Call
@@ -128,7 +128,7 @@ const Navbar = () => {
           {navLinks.map((link) => (
             <button
               key={link.href}
-              onClick={() => navigate(link)}
+              onClick={() => handleNav(link)}
               className="text-sm font-medium text-foreground/80 hover:text-primary text-left py-2 border-b border-white/10 last:border-0 transition-colors"
             >
               {link.label}
