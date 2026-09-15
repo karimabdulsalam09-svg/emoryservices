@@ -415,7 +415,7 @@ const Booking = () => {
               type="submit"
               variant="gradient"
               size="lg"
-              className="w-full h-14 text-base font-bold rounded-xl shadow-2xl shadow-primary/40 ring-2 ring-primary/30 transition-transform hover:scale-[1.02]"
+              className="w-full h-14 text-base font-bold rounded-xl shadow-2xl shadow-primary/40 ring-2 ring-primary/30 transition-transform hover:scale-[1.02] text-black"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Submitting..." : "Submit Booking Request →"}
