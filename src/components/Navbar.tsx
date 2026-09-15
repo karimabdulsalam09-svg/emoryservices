@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Menu, X, ExternalLink } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
