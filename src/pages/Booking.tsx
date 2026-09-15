@@ -184,7 +184,6 @@ const Booking = () => {
           bookingToken: insertedBooking.booking_token,
           requestedDate: format(selectedDate, 'EEEE, MMMM d, yyyy'),
           requestedTime: `${selectedTime} UK time`,
-          localTime: selectedSlot ? `${selectedSlot.localLabel}${selectedSlot.localDayNote} (${localTimeZone})` : undefined,
         }
       });
       console.log('Booking notification sent successfully');
