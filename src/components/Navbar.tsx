@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Menu, X, ExternalLink } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -17,6 +18,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -24,19 +27,26 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navigate = (link: typeof navLinks[0]) => {
+  // Scroll to hash target after landing on the homepage
+  useEffect(() => {
+    if (location.pathname === "/" && location.hash) {
+      const el = document.querySelector(location.hash);
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 80);
+    }
+  }, [location]);
+
+  const handleNav = (link: typeof navLinks[0]) => {
     setMobileOpen(false);
     if ((link as any).isRoute) {
-      window.location.href = link.href;
-    } else {
-      // If we're not on the homepage, go there first
-      if (window.location.pathname !== "/") {
-        window.location.href = "/" + link.href;
-        return;
-      }
-      const el = document.querySelector(link.href);
-      el?.scrollIntoView({ behavior: "smooth" });
+      navigate(link.href);
+      return;
     }
+    if (location.pathname !== "/") {
+      navigate("/" + link.href);
+      return;
+    }
+    const el = document.querySelector(link.href);
+    el?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -66,7 +76,7 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <button
                 key={link.href}
-                onClick={() => navigate(link)}
+                onClick={() => handleNav(link)}
                 className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
               >
                 {link.label}
@@ -88,7 +98,7 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <Button
             size="sm"
-            onClick={() => (window.location.href = "/booking")}
+            onClick={() => navigate("/booking")}
             className="bg-primary text-primary-foreground font-bold hover:shadow-[0_0_20px_hsl(187_100%_50%/0.3)] hover:scale-105 transition-all duration-300"
           >
             Book a Call
@@ -118,7 +128,7 @@ const Navbar = () => {
           {navLinks.map((link) => (
             <button
               key={link.href}
-              onClick={() => navigate(link)}
+              onClick={() => handleNav(link)}
               className="text-sm font-medium text-foreground/80 hover:text-primary text-left py-2 border-b border-white/10 last:border-0 transition-colors"
             >
               {link.label}

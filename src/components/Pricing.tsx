@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Shield, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 const vp = { once: true, margin: "0px 0px -33% 0px" } as const;
 
 const Pricing = () => {
+  const navigate = useNavigate();
   return (
     <section id="pricing" className="py-20 relative">
       <div className="container mx-auto px-6 relative z-10">
@@ -39,7 +41,7 @@ const Pricing = () => {
             </div>
 
             <div className="flex justify-center">
-              <Button size="lg" onClick={() => window.location.href = '/booking'} className="group bg-primary text-primary-foreground font-bold hover:shadow-[0_0_30px_hsl(187_100%_50%/0.3)] hover:scale-105 transition-all duration-300">
+              <Button size="lg" onClick={() => navigate('/booking')} className="group bg-primary text-primary-foreground font-bold hover:shadow-[0_0_30px_hsl(187_100%_50%/0.3)] hover:scale-105 transition-all duration-300">
                 Get Started — It's Free
                 <ArrowRight className="transition-transform group-hover:translate-x-1" />
               </Button>

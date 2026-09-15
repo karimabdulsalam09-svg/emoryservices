@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const FinalCTA = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
@@ -26,7 +28,7 @@ const FinalCTA = () => {
 
           <Button
             size="xl"
-            onClick={() => window.location.href = '/booking'}
+            onClick={() => navigate('/booking')}
             className="group bg-primary text-primary-foreground font-bold hover:shadow-[0_0_30px_hsl(187_100%_50%/0.3)] hover:scale-105 transition-all duration-300"
           >
             Book a Call

@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Globe } from "lucide-react";
 
 const OwnWebsite = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-20 relative">
       <div className="container mx-auto px-6 relative z-10">
@@ -19,7 +21,7 @@ const OwnWebsite = () => {
           </p>
           <Button
             size="lg"
-            onClick={() => window.location.href = '/booking'}
+            onClick={() => navigate('/booking')}
             className="group bg-primary text-primary-foreground font-bold hover:shadow-[0_0_30px_hsl(187_100%_50%/0.3)] hover:scale-105 transition-all duration-300"
           >
             Book a Strategy Call

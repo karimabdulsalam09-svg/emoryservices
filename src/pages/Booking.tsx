@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -96,6 +97,7 @@ const bookingSchema = z.object({
 });
 
 const Booking = () => {
+  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string>("");
@@ -219,7 +221,7 @@ const Booking = () => {
           <Button 
             variant="elite-outline" 
             size="lg"
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
           >
             Return Home
           </Button>
