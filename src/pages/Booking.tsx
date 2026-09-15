@@ -377,14 +377,14 @@ const Booking = () => {
               <SelectContent>
                 {availableSlots.map((slot) => (
                   <SelectItem key={slot.value} value={slot.value}>
-                    {slot.localLabel} your time{slot.localDayNote} · {slot.ukLabel} UK
+                    {slot.ukLabel} UK time
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Times shown in your timezone ({localTimeZone}) alongside UK time. Available Mon–Tue 3pm–11pm, Wed–Fri
-              5pm–12am, Sat–Sun 10am–10pm UK time.
+              All times are shown in UK time (Europe/London) — please check how this converts to your own timezone.
+              Available Mon–Tue 3pm–11pm, Wed–Fri 5pm–12am, Sat–Sun 10am–10pm UK time.
             </p>
           </div>
 
